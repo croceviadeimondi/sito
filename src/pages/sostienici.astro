@@ -1,0 +1,183 @@
+---
+import Layout from '../layouts/Layout.astro';
+import IntestazionePagina from '../components/IntestazionePagina.astro';
+import { fetchSingleton } from '../lib/directus';
+import type { Impostazioni } from '../lib/types';
+
+const impostazioni = await fetchSingleton<Impostazioni>('impostazioni');
+const codiceFiscale = impostazioni?.codice_fiscale ?? null;
+const iban = impostazioni?.iban_donazioni ?? null;
+const intestatario = impostazioni?.intestatario_iban ?? null;
+const satispayUrl = impostazioni?.satispay_charity_url ?? null;
+const messaggio = impostazioni?.messaggio_donazioni ?? null;
+---
+
+<Layout
+  titolo="Sostienici"
+  descrizione="Come sostenere il Crocevia dei Mondi APS: 5x1000, donazioni, tesseramento."
+>
+  <IntestazionePagina
+    titolo="Sostienici"
+    occhiello="Stai con noi"
+    sommario="Le nostre attività esistono grazie a chi crede che il gioco e la narrazione meritino spazio nello spazio pubblico. Ecco i modi per starci accanto."
+  />
+
+  <section class="section">
+    <div class="container">
+
+      {messaggio && (
+        <p class="messaggio-donazioni">{messaggio}</p>
+      )}
+
+      <div class="modi">
+
+        <article class="modo">
+          <span class="modo__numero">01</span>
+          <h2>Destina il 5×1000</h2>
+          <p>
+            Nella dichiarazione dei redditi, alla casella
+            <em>"Sostegno del volontariato e delle altre organizzazioni non lucrative…"</em>,
+            firma e indica il nostro codice fiscale.
+          </p>
+          {codiceFiscale ? (
+            <p class="modo__evidenza">
+              <span class="modo__etichetta">Codice fiscale</span>
+              <code>{codiceFiscale}</code>
+            </p>
+          ) : (
+            <p class="modo__nota">Il codice fiscale sarà pubblicato a breve.</p>
+          )}
+        </article>
+
+        <article class="modo">
+          <span class="modo__numero">02</span>
+          <h2>Fai una donazione</h2>
+          <p>
+            Anche una piccola donazione una tantum ci permette di acquistare
+            materiali, coprire spese di trasferta nei progetti scolastici e
+            sostenere i volontari.
+          </p>
+
+          {iban && (
+            <div class="modo__evidenza">
+              <span class="modo__etichetta">Bonifico bancario</span>
+              <code>{iban}</code>
+              {intestatario && <small class="modo__intestatario">Intestato a: {intestatario}</small>}
+            </div>
+          )}
+
+          {satispayUrl && (
+            <p class="modo__alt-pay">
+              <a class="bottone bottone--ghost" href={satispayUrl} rel="noopener" target="_blank">
+                Dona con Satispay
+              </a>
+            </p>
+          )}
+
+          {!iban && !satispayUrl && (
+            <p class="modo__nota">
+              Le modalità saranno pubblicate qui a breve.
+            </p>
+          )}
+        </article>
+
+        <article class="modo">
+          <span class="modo__numero">03</span>
+          <h2>Tessera l'associazione</h2>
+          <p>
+            Diventa socio: partecipi alla vita associativa, hai diritto di voto
+            in assemblea e accesso prioritario alle attività.
+          </p>
+          <a class="bottone bottone--ghost" href="/contatti">
+            Scrivici per iscriverti
+          </a>
+        </article>
+
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .messaggio-donazioni {
+    max-width: 60ch;
+    margin: 0 auto var(--space-12);
+    font-size: var(--text-lg);
+    text-align: center;
+    color: var(--color-text);
+  }
+
+  .modi {
+    display: grid;
+    gap: var(--space-8);
+  }
+
+  .modo {
+    padding: var(--space-8);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .modo__numero {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    color: var(--color-accent);
+    line-height: 1;
+  }
+
+  .modo h2 {
+    margin: 0;
+  }
+
+  .modo__evidenza {
+    margin-top: var(--space-3);
+    padding: var(--space-4);
+    background: color-mix(in srgb, var(--cdm-orange) 8%, transparent);
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .modo__etichetta {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .modo__evidenza code {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+    word-break: break-all;
+  }
+
+  .modo__intestatario {
+    color: var(--color-text-muted);
+    font-style: italic;
+    font-size: var(--text-sm);
+    margin-top: var(--space-1);
+  }
+
+  .modo__alt-pay {
+    margin: 0;
+  }
+
+  .modo__nota {
+    color: var(--color-text-muted);
+    font-style: italic;
+  }
+
+  @media (min-width: 720px) {
+    .modi {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

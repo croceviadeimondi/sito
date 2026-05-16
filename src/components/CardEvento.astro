@@ -1,0 +1,95 @@
+---
+import { formattaData } from '../lib/formato';
+import { assetUrl } from '../lib/directus';
+import type { Evento } from '../lib/types';
+
+interface Props {
+  evento: Evento;
+}
+
+const { evento } = Astro.props;
+const urlImmagine = assetUrl(evento.locandina);
+---
+
+<a href={`/eventi/${evento.slug}`} class="card-evento">
+  {urlImmagine && (
+    <div class="card-evento__media">
+      <img src={urlImmagine} alt="" loading="lazy" />
+    </div>
+  )}
+  <div class="card-evento__corpo">
+    <time class="card-evento__data" datetime={evento.data_inizio}>
+      {formattaData(evento.data_inizio)}
+    </time>
+    <h3 class="card-evento__titolo">{evento.titolo}</h3>
+    {evento.luogo_libero && (
+      <p class="card-evento__luogo">{evento.luogo_libero}</p>
+    )}
+    {evento.descrizione_breve && (
+      <p class="card-evento__descrizione">{evento.descrizione_breve}</p>
+    )}
+  </div>
+</a>
+
+<style>
+  .card-evento {
+    display: flex;
+    flex-direction: column;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: var(--color-text);
+    overflow: hidden;
+    transition: border-color 150ms ease, transform 150ms ease;
+    height: 100%;
+  }
+
+  .card-evento:hover {
+    border-color: var(--color-accent);
+    transform: translateY(-2px);
+  }
+
+  .card-evento__media {
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--cdm-petrol) 10%, transparent);
+  }
+
+  .card-evento__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .card-evento__corpo {
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    flex: 1;
+  }
+
+  .card-evento__data {
+    font-size: var(--text-sm);
+    color: var(--color-accent);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .card-evento__titolo {
+    font-size: var(--text-xl);
+    margin: 0;
+  }
+
+  .card-evento__luogo {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
+  .card-evento__descrizione {
+    margin: var(--space-2) 0 0;
+  }
+</style>

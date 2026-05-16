@@ -1,0 +1,52 @@
+---
+interface Props {
+  titolo: string;
+  occhiello?: string;
+  sommario?: string;
+}
+
+const { titolo, occhiello, sommario } = Astro.props;
+---
+
+<section class="intestazione-pagina">
+  <div class="container intestazione-pagina__inner">
+    {occhiello && <p class="intestazione-pagina__occhiello">{occhiello}</p>}
+    <h1 class="intestazione-pagina__titolo">{titolo}</h1>
+    {sommario && <p class="intestazione-pagina__sommario">{sommario}</p>}
+  </div>
+</section>
+
+<style>
+  .intestazione-pagina {
+    background:
+      radial-gradient(ellipse at 100% 50%, color-mix(in srgb, var(--cdm-orange) 18%, transparent), transparent 60%),
+      var(--cdm-petrol);
+    color: var(--color-on-dark);
+    padding-block: var(--space-16);
+  }
+
+  .intestazione-pagina__inner {
+    max-width: 760px;
+  }
+
+  .intestazione-pagina__occhiello {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: var(--text-sm);
+    color: var(--cdm-orange-light);
+    font-weight: 600;
+    margin-bottom: var(--space-3);
+  }
+
+  .intestazione-pagina__titolo {
+    margin: 0;
+    color: var(--color-on-dark);
+  }
+
+  .intestazione-pagina__sommario {
+    font-size: var(--text-lg);
+    margin-top: var(--space-4);
+    color: color-mix(in srgb, var(--color-on-dark) 90%, transparent);
+    max-width: 60ch;
+  }
+</style>

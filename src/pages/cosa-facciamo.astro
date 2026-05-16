@@ -1,0 +1,116 @@
+---
+import Layout from '../layouts/Layout.astro';
+import IntestazionePagina from '../components/IntestazionePagina.astro';
+
+const ambiti: { sigla: string; nome: string; descrizione: string }[] = [
+  {
+    sigla: 'CdM',
+    nome: 'Crocevia dei Mondi',
+    descrizione:
+      'Il brand generale dell\'associazione. Coordina i progetti trasversali, le collaborazioni con enti pubblici e privati e l\'animazione delle comunità di gioco.',
+  },
+  {
+    sigla: 'MdG',
+    nome: 'Mondi di Grafite',
+    descrizione:
+      'L\'area dedicata ai giochi: giochi da tavolo, di ruolo, di carte. Demo, tornei, laboratori in scuole e biblioteche.',
+  },
+  {
+    sigla: 'MtR',
+    nome: 'Mondi tra le Righe',
+    descrizione:
+      'L\'area dedicata alla lettura e alla narrazione. Gruppi di lettura, scrittura collettiva, narrazione interattiva.',
+  },
+];
+---
+
+<Layout
+  titolo="Cosa facciamo"
+  descrizione="Le aree di attività del Crocevia dei Mondi: gioco, lettura, narrazione, formazione."
+>
+  <IntestazionePagina
+    titolo="Cosa facciamo"
+    occhiello="Aree e progetti"
+    sommario="Ci muoviamo su tre fronti complementari. Ogni area ha una sua identità ma condivide la stessa intenzione: costruire spazi di incontro attraverso il gioco e la narrazione."
+  />
+
+  <section class="section">
+    <div class="container">
+      <div class="ambiti">
+        {ambiti.map((ambito) => (
+          <article class="ambito">
+            <span class="ambito__sigla">{ambito.sigla}</span>
+            <h2 class="ambito__nome">{ambito.nome}</h2>
+            <p class="ambito__descrizione">{ambito.descrizione}</p>
+          </article>
+        ))}
+      </div>
+
+      <div class="cta-finale">
+        <h2>Lavoriamo insieme</h2>
+        <p>
+          Sei una scuola, una biblioteca, un ente del terzo settore?
+          Possiamo costruire un'attività su misura per il tuo contesto.
+        </p>
+        <a class="bottone" href="/contatti">Scrivici</a>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .ambiti {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-6);
+    margin-bottom: var(--space-16);
+  }
+
+  .ambito {
+    padding: var(--space-8);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .ambito__sigla {
+    display: inline-block;
+    align-self: flex-start;
+    padding: var(--space-1) var(--space-3);
+    background: var(--color-accent);
+    color: var(--color-on-dark);
+    border-radius: var(--radius-pill);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  .ambito__nome {
+    margin: 0;
+    font-size: var(--text-2xl);
+  }
+
+  .ambito__descrizione {
+    margin: 0;
+  }
+
+  .cta-finale {
+    text-align: center;
+    padding: var(--space-12);
+    background: color-mix(in srgb, var(--cdm-petrol) 6%, var(--color-bg));
+    border-radius: var(--radius-lg);
+  }
+
+  .cta-finale h2 {
+    margin-bottom: var(--space-4);
+  }
+
+  .cta-finale p {
+    max-width: 50ch;
+    margin: 0 auto var(--space-6);
+    font-size: var(--text-lg);
+  }
+</style>

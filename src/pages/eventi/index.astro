@@ -1,0 +1,84 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import IntestazionePagina from '../../components/IntestazionePagina.astro';
+import CardEvento from '../../components/CardEvento.astro';
+import { fetchCollection } from '../../lib/directus';
+import type { Evento } from '../../lib/types';
+
+const tutti = await fetchCollection<Evento>('eventi', { sort: 'data_inizio' });
+const adesso = new Date().toISOString();
+
+const futuri = tutti.filter((e) => e.data_inizio >= adesso);
+const archivio = tutti
+  .filter((e) => e.data_inizio < adesso)
+  .reverse();
+---
+
+<Layout
+  titolo="Eventi"
+  descrizione="Tutti gli appuntamenti del Crocevia dei Mondi: prossimi eventi e archivio storico."
+>
+  <IntestazionePagina
+    titolo="Eventi"
+    occhiello="Calendario"
+    sommario="Demo, tornei, gruppi di lettura, laboratori. Tutti gli appuntamenti aperti al pubblico — passati e futuri."
+  />
+
+  <section class="section">
+    <div class="container">
+      <h2 class="lista__titolo">Prossimi appuntamenti</h2>
+      {futuri.length === 0 ? (
+        <p class="sezione-vuota">
+          Nessun evento in calendario al momento. Torna a trovarci a breve.
+        </p>
+      ) : (
+        <ul role="list" class="griglia-card">
+          {futuri.map((evento) => (
+            <li><CardEvento evento={evento} /></li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </section>
+
+  {archivio.length > 0 && (
+    <section class="section section--alt">
+      <div class="container">
+        <h2 class="lista__titolo">Archivio</h2>
+        <ul role="list" class="griglia-card">
+          {archivio.map((evento) => (
+            <li><CardEvento evento={evento} /></li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+</Layout>
+
+<style>
+  .lista__titolo {
+    margin-bottom: var(--space-8);
+  }
+
+  .section--alt {
+    background: color-mix(in srgb, var(--cdm-petrol) 6%, var(--color-bg));
+  }
+
+  .sezione-vuota {
+    color: var(--color-text-muted);
+    font-size: var(--text-lg);
+    padding: var(--space-8);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-md);
+    text-align: center;
+  }
+
+  .griglia-card {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-6);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+</style>

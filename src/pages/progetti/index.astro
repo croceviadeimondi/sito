@@ -1,0 +1,56 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import IntestazionePagina from '../../components/IntestazionePagina.astro';
+import CardProgetto from '../../components/CardProgetto.astro';
+import { fetchCollection } from '../../lib/directus';
+import type { Progetto } from '../../lib/types';
+
+const progetti = await fetchCollection<Progetto>('progetti', { sort: 'sort' });
+---
+
+<Layout
+  titolo="Progetti"
+  descrizione="I progetti del Crocevia dei Mondi: in corso, conclusi, in vetrina."
+>
+  <IntestazionePagina
+    titolo="Progetti"
+    occhiello="Cosa abbiamo costruito"
+    sommario="Iniziative attive e concluse: dal gioco nelle scuole alle collaborazioni con biblioteche ed enti del terzo settore."
+  />
+
+  <section class="section">
+    <div class="container">
+      {progetti.length === 0 ? (
+        <p class="sezione-vuota">
+          La pagina progetti è in costruzione: presto qui troverai il nostro lavoro.
+        </p>
+      ) : (
+        <ul role="list" class="griglia-card">
+          {progetti.map((progetto) => (
+            <li><CardProgetto progetto={progetto} /></li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .sezione-vuota {
+    color: var(--color-text-muted);
+    font-size: var(--text-lg);
+    padding: var(--space-8);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-md);
+    text-align: center;
+  }
+
+  .griglia-card {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-6);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+</style>

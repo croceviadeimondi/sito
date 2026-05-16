@@ -1,17 +1,160 @@
 ---
+import Layout from '../layouts/Layout.astro';
+import CardEvento from '../components/CardEvento.astro';
+import CardProgetto from '../components/CardProgetto.astro';
+import { fetchCollection } from '../lib/directus';
+import type { Evento, Progetto } from '../lib/types';
 
+const adesso = new Date().toISOString();
+
+const [prossimiEventi, progettiVetrina] = await Promise.all([
+  fetchCollection<Evento>('eventi', {
+    filter: { data_inizio: { _gte: adesso } },
+    sort: 'data_inizio',
+    limit: 3,
+  }),
+  fetchCollection<Progetto>('progetti', {
+    sort: 'sort',
+    limit: 3,
+  }),
+]);
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout
+  titolo="Home"
+  descrizione="Crocevia dei Mondi APS: il gioco come strumento sociale, mondi che si incontrano nel Sud Italia."
+>
+  <section class="hero">
+    <div class="container hero__inner">
+      <p class="hero__occhiello">Associazione di Promozione Sociale</p>
+      <h1 class="hero__titolo">Mondi che si incontrano.</h1>
+      <p class="hero__sommario">
+        Usiamo il gioco da tavolo, di ruolo e narrativo come ponte tra persone,
+        culture e generazioni. Lavoriamo nel Sud Italia con scuole, biblioteche
+        e comunità.
+      </p>
+      <div class="hero__azioni">
+        <a class="bottone" href="/cosa-facciamo">Scopri cosa facciamo</a>
+        <a class="bottone bottone--ghost" href="/sostienici">Sostienici</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <header class="sezione-intestazione">
+        <h2>Prossimi eventi</h2>
+        <a href="/eventi" class="sezione-intestazione__link">Tutti gli eventi →</a>
+      </header>
+
+      {prossimiEventi.length === 0 ? (
+        <p class="sezione-vuota">
+          Calendario in arrivo: appena pubblichiamo i prossimi appuntamenti li trovi qui.
+        </p>
+      ) : (
+        <ul role="list" class="griglia-card">
+          {prossimiEventi.map((evento) => (
+            <li><CardEvento evento={evento} /></li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container">
+      <header class="sezione-intestazione">
+        <h2>Progetti in vetrina</h2>
+        <a href="/progetti" class="sezione-intestazione__link">Tutti i progetti →</a>
+      </header>
+
+      {progettiVetrina.length === 0 ? (
+        <p class="sezione-vuota">
+          Stiamo preparando la vetrina dei progetti attivi e di quelli realizzati.
+        </p>
+      ) : (
+        <ul role="list" class="griglia-card">
+          {progettiVetrina.map((progetto) => (
+            <li><CardProgetto progetto={progetto} /></li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .hero {
+    background:
+      radial-gradient(ellipse at 30% 20%, color-mix(in srgb, var(--cdm-orange) 25%, transparent) 0%, transparent 55%),
+      radial-gradient(ellipse at 80% 80%, color-mix(in srgb, var(--cdm-space-purple) 40%, transparent) 0%, transparent 60%),
+      var(--color-bg);
+    padding-block: var(--space-24);
+  }
+
+  .hero__inner {
+    max-width: 820px;
+  }
+
+  .hero__occhiello {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: var(--text-sm);
+    color: var(--color-accent);
+    font-weight: 600;
+    margin-bottom: var(--space-4);
+  }
+
+  .hero__titolo {
+    margin-bottom: var(--space-6);
+  }
+
+  .hero__sommario {
+    font-size: var(--text-lg);
+    max-width: 60ch;
+    margin-bottom: var(--space-8);
+  }
+
+  .hero__azioni {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+  }
+
+  .section--alt {
+    background: color-mix(in srgb, var(--cdm-petrol) 6%, var(--color-bg));
+  }
+
+  .sezione-intestazione {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin-bottom: var(--space-8);
+  }
+
+  .sezione-intestazione__link {
+    text-decoration: none;
+    color: var(--color-accent);
+    font-weight: 600;
+  }
+
+  .sezione-vuota {
+    color: var(--color-text-muted);
+    font-size: var(--text-lg);
+    padding: var(--space-8);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-md);
+    text-align: center;
+  }
+
+  .griglia-card {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-6);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+</style>

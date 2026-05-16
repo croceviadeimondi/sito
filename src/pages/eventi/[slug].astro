@@ -1,0 +1,148 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { fetchCollection, assetUrl } from '../../lib/directus';
+import { formattaPeriodo } from '../../lib/formato';
+import type { Evento } from '../../lib/types';
+
+export async function getStaticPaths() {
+  const eventi = await fetchCollection<Evento>('eventi');
+  return eventi.map((evento) => ({
+    params: { slug: evento.slug },
+    props: { evento },
+  }));
+}
+
+interface Props {
+  evento: Evento;
+}
+
+const { evento } = Astro.props;
+const periodo = formattaPeriodo(evento.data_inizio, evento.data_fine);
+const urlImmagine = assetUrl(evento.locandina);
+---
+
+<Layout
+  titolo={evento.titolo}
+  descrizione={evento.descrizione_breve ?? 'Evento del Crocevia dei Mondi APS'}
+  immagineOg={urlImmagine ?? undefined}
+>
+  <article>
+    <header class="dettaglio-intestazione">
+      <div class="container container-narrow">
+        <p class="dettaglio-breadcrumb">
+          <a href="/eventi">← Tutti gli eventi</a>
+        </p>
+        <p class="dettaglio-occhiello">
+          {periodo}
+          {evento.luogo_libero && <> · {evento.luogo_libero}</>}
+        </p>
+        <h1>{evento.titolo}</h1>
+        {evento.descrizione_breve && (
+          <p class="dettaglio-sommario">{evento.descrizione_breve}</p>
+        )}
+        {evento.link_prenotazione && (
+          <p>
+            <a class="bottone" href={evento.link_prenotazione} rel="noopener" target="_blank">
+              Prenota il tuo posto
+            </a>
+          </p>
+        )}
+      </div>
+    </header>
+
+    {urlImmagine && (
+      <div class="container">
+        <img src={urlImmagine} alt="" class="dettaglio-immagine" />
+      </div>
+    )}
+
+    {(evento.descrizione_completa || evento.ospiti_speciali) && (
+      <section class="section">
+        <div class="container container-narrow">
+          {evento.descrizione_completa && (
+            <div class="rt" set:html={evento.descrizione_completa} />
+          )}
+          {evento.ospiti_speciali && (
+            <aside class="ospiti">
+              <h2>Ospiti speciali</h2>
+              <p>{evento.ospiti_speciali}</p>
+            </aside>
+          )}
+        </div>
+      </section>
+    )}
+  </article>
+</Layout>
+
+<style>
+  .dettaglio-intestazione {
+    background:
+      radial-gradient(ellipse at 100% 50%, color-mix(in srgb, var(--cdm-orange) 18%, transparent), transparent 60%),
+      var(--cdm-petrol);
+    color: var(--color-on-dark);
+    padding-block: var(--space-16);
+  }
+
+  .dettaglio-intestazione h1 {
+    margin: var(--space-3) 0 var(--space-4);
+    color: var(--color-on-dark);
+  }
+
+  .dettaglio-breadcrumb {
+    margin: 0 0 var(--space-6);
+  }
+
+  .dettaglio-breadcrumb a {
+    color: var(--cdm-orange-light);
+    text-decoration: none;
+    font-size: var(--text-sm);
+  }
+
+  .dettaglio-breadcrumb a:hover {
+    text-decoration: underline;
+  }
+
+  .dettaglio-occhiello {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: var(--text-sm);
+    color: var(--cdm-orange-light);
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .dettaglio-sommario {
+    font-size: var(--text-lg);
+    margin: var(--space-4) 0 var(--space-6);
+    color: color-mix(in srgb, var(--color-on-dark) 90%, transparent);
+  }
+
+  .dettaglio-immagine {
+    width: 100%;
+    max-height: 480px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    margin-top: calc(-1 * var(--space-8));
+  }
+
+  .ospiti {
+    margin-top: var(--space-12);
+    padding: var(--space-6);
+    background: color-mix(in srgb, var(--cdm-petrol) 5%, var(--color-bg));
+    border-left: 3px solid var(--color-accent);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  }
+
+  .ospiti h2 {
+    margin: 0 0 var(--space-2);
+    font-size: var(--text-xl);
+  }
+
+  .rt :global(p) { margin-block: var(--space-4); }
+  .rt :global(h2) { margin-top: var(--space-8); }
+  .rt :global(h3) { margin-top: var(--space-6); }
+  .rt :global(ul),
+  .rt :global(ol) { padding-left: var(--space-6); margin-block: var(--space-4); }
+  .rt :global(a) { color: var(--color-accent); }
+  .rt :global(img) { border-radius: var(--radius-md); margin-block: var(--space-6); }
+</style>

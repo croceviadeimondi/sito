@@ -1,0 +1,84 @@
+---
+import Layout from '../layouts/Layout.astro';
+import IntestazionePagina from '../components/IntestazionePagina.astro';
+---
+
+<Layout
+  titolo="Chi siamo"
+  descrizione="Crocevia dei Mondi APS: chi siamo, la nostra missione e il direttivo."
+>
+  <IntestazionePagina
+    titolo="Chi siamo"
+    occhiello="L'associazione"
+    sommario="Crocevia dei Mondi è un'Associazione di Promozione Sociale del Sud Italia. Crediamo che il gioco — da tavolo, di ruolo, narrativo — sia uno strumento serio per costruire comunità."
+  />
+
+  <section class="section">
+    <div class="container container-narrow">
+      <h2>La nostra missione</h2>
+      <p class="paragrafo-grande">
+        Mettiamo il gioco al servizio del legame sociale. Lavoriamo con scuole,
+        biblioteche, centri di aggregazione e singole persone per creare spazi
+        dove generazioni e culture diverse si incontrano davvero, intorno a un
+        tavolo.
+      </p>
+
+      <h2>Cosa ci muove</h2>
+      <ul class="elenco-valori">
+        <li>
+          <strong>Inclusività.</strong> Il gioco è un linguaggio comune che
+          attraversa età, provenienze e abilità.
+        </li>
+        <li>
+          <strong>Cura del territorio.</strong> Operiamo nel Sud Italia perché è
+          il nostro terreno e il nostro impegno civile.
+        </li>
+        <li>
+          <strong>Rigore narrativo.</strong> Crediamo nelle storie ben raccontate
+          e nei meccanismi di gioco che producono significato.
+        </li>
+        <li>
+          <strong>Trasparenza.</strong> Bilanci, attività e collaborazioni sono
+          pubblici e consultabili.
+        </li>
+      </ul>
+
+      <h2>Il direttivo</h2>
+      <p>
+        L'associazione è guidata da un direttivo eletto. I profili dei membri,
+        con ruoli e brevi biografie, saranno pubblicati a breve.
+      </p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .paragrafo-grande {
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-8);
+  }
+
+  h2 {
+    margin-top: var(--space-12);
+    margin-bottom: var(--space-4);
+  }
+
+  h2:first-child {
+    margin-top: 0;
+  }
+
+  .elenco-valori {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-8);
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .elenco-valori li {
+    padding: var(--space-4) var(--space-6);
+    border-left: 3px solid var(--color-accent);
+    background: color-mix(in srgb, var(--cdm-orange) 6%, transparent);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  }
+</style>

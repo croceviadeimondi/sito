@@ -1,0 +1,233 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { fetchCollection, assetUrl } from '../../lib/directus';
+import { formattaAnno } from '../../lib/formato';
+import type { Progetto } from '../../lib/types';
+
+export async function getStaticPaths() {
+  const progetti = await fetchCollection<Progetto>('progetti');
+  return progetti.map((progetto) => ({
+    params: { slug: progetto.slug },
+    props: { progetto },
+  }));
+}
+
+interface Props {
+  progetto: Progetto;
+}
+
+const { progetto } = Astro.props;
+const urlImmagine = assetUrl(progetto.copertina);
+
+const annoInizio = formattaAnno(progetto.data_inizio);
+const annoFine = formattaAnno(progetto.data_fine);
+const inCorso = progetto.stato_progetto === 'in_corso';
+
+let periodo: string | null = null;
+if (annoInizio && annoFine) {
+  periodo = annoInizio === annoFine ? annoInizio : `${annoInizio} – ${annoFine}`;
+} else if (annoInizio) {
+  periodo = inCorso ? `${annoInizio} – in corso` : annoInizio;
+} else if (annoFine) {
+  periodo = annoFine;
+} else if (inCorso) {
+  periodo = 'In corso';
+}
+
+const importoFormattato = progetto.importo_finanziato
+  ? new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(progetto.importo_finanziato)
+  : null;
+
+const haDati = Boolean(progetto.luogo || progetto.bando_finanziatore || importoFormattato);
+---
+
+<Layout
+  titolo={progetto.titolo}
+  descrizione={progetto.descrizione_breve ?? `Progetto del Crocevia dei Mondi APS`}
+  immagineOg={urlImmagine ?? undefined}
+>
+  <article>
+    <header class="dettaglio-intestazione">
+      <div class="container container-narrow">
+        <p class="dettaglio-breadcrumb">
+          <a href="/progetti">← Tutti i progetti</a>
+        </p>
+        {periodo && <p class="dettaglio-occhiello">{periodo}</p>}
+        <h1>{progetto.titolo}</h1>
+        {progetto.sottotitolo && (
+          <p class="dettaglio-sottotitolo">{progetto.sottotitolo}</p>
+        )}
+        {progetto.descrizione_breve && (
+          <p class="dettaglio-sommario">{progetto.descrizione_breve}</p>
+        )}
+      </div>
+    </header>
+
+    {urlImmagine && (
+      <div class="container">
+        <img src={urlImmagine} alt="" class="dettaglio-immagine" />
+      </div>
+    )}
+
+    {haDati && (
+      <section class="section section--dati">
+        <div class="container container-narrow">
+          <dl class="dati-progetto">
+            {progetto.luogo && (
+              <div class="dati-progetto__riga">
+                <dt>Luogo</dt>
+                <dd>{progetto.luogo}</dd>
+              </div>
+            )}
+            {progetto.bando_finanziatore && (
+              <div class="dati-progetto__riga">
+                <dt>Bando / Finanziatore</dt>
+                <dd>{progetto.bando_finanziatore}</dd>
+              </div>
+            )}
+            {importoFormattato && (
+              <div class="dati-progetto__riga">
+                <dt>Importo finanziato</dt>
+                <dd>{importoFormattato}</dd>
+              </div>
+            )}
+          </dl>
+        </div>
+      </section>
+    )}
+
+    {progetto.descrizione_completa && (
+      <section class="section">
+        <div class="container container-narrow">
+          <div class="rt" set:html={progetto.descrizione_completa} />
+        </div>
+      </section>
+    )}
+
+    {progetto.target_beneficiari && (
+      <section class="section section--alt">
+        <div class="container container-narrow">
+          <h2>A chi è rivolto</h2>
+          <p>{progetto.target_beneficiari}</p>
+        </div>
+      </section>
+    )}
+
+    {progetto.risultati_raggiunti && (
+      <section class="section">
+        <div class="container container-narrow">
+          <h2>Risultati raggiunti</h2>
+          <div class="rt" set:html={progetto.risultati_raggiunti} />
+        </div>
+      </section>
+    )}
+  </article>
+</Layout>
+
+<style>
+  .dettaglio-intestazione {
+    background:
+      radial-gradient(ellipse at 100% 50%, color-mix(in srgb, var(--cdm-space-purple) 30%, transparent), transparent 60%),
+      var(--cdm-petrol);
+    color: var(--color-on-dark);
+    padding-block: var(--space-16);
+  }
+
+  .dettaglio-intestazione h1 {
+    margin: var(--space-3) 0 var(--space-2);
+    color: var(--color-on-dark);
+  }
+
+  .dettaglio-breadcrumb {
+    margin: 0 0 var(--space-6);
+  }
+
+  .dettaglio-breadcrumb a {
+    color: var(--cdm-orange-light);
+    text-decoration: none;
+    font-size: var(--text-sm);
+  }
+
+  .dettaglio-breadcrumb a:hover {
+    text-decoration: underline;
+  }
+
+  .dettaglio-occhiello {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: var(--text-sm);
+    color: var(--cdm-orange-light);
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .dettaglio-sottotitolo {
+    font-size: var(--text-xl);
+    font-style: italic;
+    color: color-mix(in srgb, var(--color-on-dark) 85%, transparent);
+    margin: 0 0 var(--space-4);
+  }
+
+  .dettaglio-sommario {
+    font-size: var(--text-lg);
+    margin: var(--space-2) 0 0;
+    color: color-mix(in srgb, var(--color-on-dark) 90%, transparent);
+  }
+
+  .dettaglio-immagine {
+    width: 100%;
+    max-height: 480px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    margin-top: calc(-1 * var(--space-8));
+  }
+
+  .section--dati {
+    padding-block: var(--space-8);
+  }
+
+  .section--alt {
+    background: color-mix(in srgb, var(--cdm-petrol) 6%, var(--color-bg));
+  }
+
+  .dati-progetto {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+    padding: var(--space-6);
+    background: color-mix(in srgb, var(--cdm-petrol) 4%, var(--color-bg));
+    border-radius: var(--radius-md);
+  }
+
+  .dati-progetto__riga {
+    display: grid;
+    grid-template-columns: 11rem 1fr;
+    gap: var(--space-4);
+  }
+
+  .dati-progetto dt {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .dati-progetto dd {
+    margin: 0;
+  }
+
+  @media (max-width: 540px) {
+    .dati-progetto__riga {
+      grid-template-columns: 1fr;
+      gap: var(--space-1);
+    }
+  }
+
+  .rt :global(p) { margin-block: var(--space-4); }
+  .rt :global(h2) { margin-top: var(--space-8); }
+  .rt :global(h3) { margin-top: var(--space-6); }
+  .rt :global(ul),
+  .rt :global(ol) { padding-left: var(--space-6); margin-block: var(--space-4); }
+  .rt :global(a) { color: var(--color-accent); }
+  .rt :global(img) { border-radius: var(--radius-md); margin-block: var(--space-6); }
+</style>
