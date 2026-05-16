@@ -162,7 +162,6 @@ function attiva(href: string): boolean {
     justify-content: space-between;
     gap: var(--space-6);
     padding-block: var(--space-4);
-    transition: padding-block 250ms ease;
   }
 
   .header__brand {
@@ -172,7 +171,6 @@ function attiva(href: string): boolean {
     text-decoration: none;
     color: var(--color-accent);
     font-family: var(--font-logo);
-    transition: gap 250ms ease;
   }
 
   .header__brand-mark {
@@ -187,14 +185,12 @@ function attiva(href: string): boolean {
     font-family: var(--font-body);
     font-weight: 700;
     letter-spacing: 0.02em;
-    transition: width 250ms ease, height 250ms ease, font-size 250ms ease;
   }
 
   .header__brand-name {
     font-size: var(--text-2xl);
     color: var(--color-accent);
     line-height: 1;
-    transition: font-size 350ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .header__nav-list {
@@ -383,10 +379,6 @@ function attiva(href: string): boolean {
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .header__inner,
-    .header__brand,
-    .header__brand-mark,
-    .header__brand-name,
     .header__nav,
     .header__toggle-icon::before,
     .header__toggle-icon::after {
