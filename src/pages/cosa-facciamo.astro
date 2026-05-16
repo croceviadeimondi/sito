@@ -3,7 +3,6 @@ import Layout from '../layouts/Layout.astro';
 import IntestazionePagina from '../components/IntestazionePagina.astro';
 
 interface Ambito {
-  sigla: string;
   nome: string;
   nomeHtml?: string;
   descrizione: string;
@@ -11,32 +10,27 @@ interface Ambito {
 
 const ambiti: Ambito[] = [
   {
-    sigla: 'MV',
     nome: 'Mana Vault',
     descrizione:
       'L\'area dedicata ai giochi di carte da collezione: Magic: The Gathering, Pokemon, Yu-Gi-Oh! e altri. Tornei, demo, costruzione mazzi, scambi.',
   },
   {
-    sigla: 'GdR',
     nome: 'Giochi di Ruolo',
     descrizione:
       'L\'area dei giochi di ruolo: campagne lunghe, one-shot, narrazione condivisa. D&D, sistemi indie italiani, narrative game.',
   },
   {
-    sigla: 'BG',
     nome: 'Boar(d)Games',
     nomeHtml: 'Boar(<u>d</u>)Games',
     descrizione:
       'L\'area dei giochi da tavolo moderni: party game, strategici, cooperative, gateway. Serate gioco aperte a tutti.',
   },
   {
-    sigla: 'MdA',
     nome: 'Mondi d\'Arte',
     descrizione:
       'L\'area dedicata alle arti visive e creative legate al gioco: illustrazione, miniature, design ludico, laboratori espressivi.',
   },
   {
-    sigla: 'MtR',
     nome: 'Mondi tra le Righe',
     descrizione:
       'L\'area dedicata alla lettura e alla narrazione. Gruppi di lettura, scrittura collettiva, narrazione interattiva.',
@@ -59,7 +53,6 @@ const ambiti: Ambito[] = [
       <div class="ambiti">
         {ambiti.map((ambito) => (
           <article class="ambito">
-            <span class="ambito__sigla">{ambito.sigla}</span>
             {ambito.nomeHtml ? (
               <h2 class="ambito__nome" set:html={ambito.nomeHtml} />
             ) : (
@@ -68,6 +61,15 @@ const ambiti: Ambito[] = [
             <p class="ambito__descrizione">{ambito.descrizione}</p>
           </article>
         ))}
+
+        <a class="ambito ambito--proposta" href="/contatti/">
+          <h2 class="ambito__nome">Suggeriscilo tu</h2>
+          <p class="ambito__descrizione">
+            Le nostre attività sono ideate e realizzate dai soci.
+            Hai un'idea che ancora non c'è? Proponila e portala avanti con noi.
+          </p>
+          <span class="ambito__freccia" aria-hidden="true">→</span>
+        </a>
       </div>
 
       <div class="cta-finale">
@@ -100,16 +102,31 @@ const ambiti: Ambito[] = [
     gap: var(--space-3);
   }
 
-  .ambito__sigla {
-    display: inline-block;
-    align-self: flex-start;
-    padding: var(--space-1) var(--space-3);
-    background: var(--color-accent);
-    color: var(--color-on-dark);
-    border-radius: var(--radius-pill);
-    font-size: var(--text-sm);
-    font-weight: 700;
-    letter-spacing: 0.04em;
+  .ambito--proposta {
+    background: transparent;
+    border-style: dashed;
+    border-color: var(--color-accent);
+    text-decoration: none;
+    color: var(--color-text);
+    position: relative;
+    transition: background-color 150ms ease, transform 150ms ease;
+  }
+
+  .ambito--proposta:hover {
+    background: color-mix(in srgb, var(--cdm-orange) 5%, transparent);
+    transform: translateY(-2px);
+  }
+
+  .ambito--proposta .ambito__nome {
+    color: var(--color-accent);
+  }
+
+  .ambito__freccia {
+    align-self: flex-end;
+    font-size: var(--text-2xl);
+    color: var(--color-accent);
+    line-height: 1;
+    margin-top: auto;
   }
 
   .ambito__nome {
