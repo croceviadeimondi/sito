@@ -26,3 +26,4 @@ pnpm-debug.log*
 # Claude Code memory files (personal/local)
 CLAUDE.local.md
 .claude/
+CLAUDE.md
