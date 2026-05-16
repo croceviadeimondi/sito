@@ -60,6 +60,15 @@ export interface Evento {
   progetto_collegato: string | null;
 }
 
+export interface Attivita {
+  id: string;
+  status: Status;
+  sort: number | null;
+  nome: string;
+  nome_html: string | null;
+  descrizione_breve: string;
+}
+
 export interface Sede {
   id: string;
   status: Status;
