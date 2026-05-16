@@ -26,10 +26,20 @@ function attiva(href: string): boolean {
   <div class="container header__inner">
     <a href="/" class="header__brand" aria-label="Crocevia dei Mondi — home">
       <span class="header__brand-mark">CdM</span>
-      <span class="header__brand-name">Crocevia dei&nbsp;Mondi</span>
+      <span class="header__brand-name">Crocevia dei Mondi</span>
     </a>
 
-    <nav class="header__nav" aria-label="Navigazione principale">
+    <button
+      class="header__toggle"
+      type="button"
+      aria-label="Apri il menù"
+      aria-expanded="false"
+      aria-controls="menu-principale"
+    >
+      <span class="header__toggle-icon" aria-hidden="true"></span>
+    </button>
+
+    <nav class="header__nav" id="menu-principale" aria-label="Navigazione principale">
       <ul role="list" class="header__nav-list">
         {voci.map((voce) => (
           <li>
@@ -49,57 +59,86 @@ function attiva(href: string): boolean {
 
 <script>
   const header = document.querySelector<HTMLElement>('.header');
-  if (header && header.dataset.grande === 'true') {
-    const brand = header.querySelector<HTMLElement>('.header__brand');
+  if (header) {
+    // ─── Menù hamburger (mobile) ─────────────────────────────────
+    const toggle = header.querySelector<HTMLButtonElement>('.header__toggle');
     const nav = header.querySelector<HTMLElement>('.header__nav');
-    const soglia = 180;
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-    let ticking = false;
-    let statoRidotto = window.scrollY > soglia;
-    header.classList.toggle('is-ridotto', statoRidotto);
+    if (toggle && nav) {
+      const setMenu = (aperto: boolean) => {
+        header.classList.toggle('menu-aperto', aperto);
+        toggle.setAttribute('aria-expanded', String(aperto));
+        toggle.setAttribute('aria-label', aperto ? 'Chiudi il menù' : 'Apri il menù');
+      };
+      toggle.addEventListener('click', () => {
+        setMenu(!header.classList.contains('menu-aperto'));
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && header.classList.contains('menu-aperto')) {
+          setMenu(false);
+          toggle.focus();
+        }
+      });
+      nav.querySelectorAll('a').forEach((a) =>
+        a.addEventListener('click', () => setMenu(false))
+      );
+    }
 
-    const aggiorna = () => {
-      ticking = false;
-      const dovrebbe = window.scrollY > soglia;
-      if (statoRidotto === dovrebbe) return;
+    // ─── Header "grande" che si riduce allo scroll (home, desktop) ───
+    if (header.dataset.grande === 'true' && nav) {
+      const brand = header.querySelector<HTMLElement>('.header__brand');
+      const soglia = 180;
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-      // Reduced motion o elementi mancanti: solo toggle, niente FLIP
-      if (reduceMotion.matches || !brand || !nav) {
+      let ticking = false;
+      let statoRidotto = window.scrollY > soglia;
+      header.classList.toggle('is-ridotto', statoRidotto);
+
+      const aggiorna = () => {
+        ticking = false;
+        const dovrebbe = window.scrollY > soglia;
+        if (statoRidotto === dovrebbe) return;
+
+        if (reduceMotion.matches || !brand) {
+          statoRidotto = dovrebbe;
+          header.classList.toggle('is-ridotto', dovrebbe);
+          return;
+        }
+
+        // FLIP: misura prima, cambia stato, misura dopo, inverti, anima
+        const fb = brand.getBoundingClientRect();
+        const fn = nav.getBoundingClientRect();
+
         statoRidotto = dovrebbe;
         header.classList.toggle('is-ridotto', dovrebbe);
-        return;
-      }
 
-      // FLIP: misura prima, cambia stato, misura dopo, applica inverso, lascia animare
-      const fb = brand.getBoundingClientRect();
-      const fn = nav.getBoundingClientRect();
+        const lb = brand.getBoundingClientRect();
+        const ln = nav.getBoundingClientRect();
 
-      statoRidotto = dovrebbe;
-      header.classList.toggle('is-ridotto', dovrebbe);
+        brand.style.transition = 'none';
+        nav.style.transition = 'none';
+        brand.style.transform = `translate(${fb.left - lb.left}px, ${fb.top - lb.top}px)`;
+        nav.style.transform = `translate(${fn.left - ln.left}px, ${fn.top - ln.top}px)`;
 
-      const lb = brand.getBoundingClientRect();
-      const ln = nav.getBoundingClientRect();
+        window.requestAnimationFrame(() => {
+          brand.style.transition = 'transform 350ms cubic-bezier(0.4, 0, 0.2, 1)';
+          nav.style.transition = 'transform 350ms cubic-bezier(0.4, 0, 0.2, 1)';
+          brand.style.transform = '';
+          nav.style.transform = '';
+        });
+      };
 
-      brand.style.transition = 'none';
-      nav.style.transition = 'none';
-      brand.style.transform = `translate(${fb.left - lb.left}px, ${fb.top - lb.top}px)`;
-      nav.style.transform = `translate(${fn.left - ln.left}px, ${fn.top - ln.top}px)`;
-
-      window.requestAnimationFrame(() => {
-        brand.style.transition = 'transform 350ms cubic-bezier(0.4, 0, 0.2, 1)';
-        nav.style.transition = 'transform 350ms cubic-bezier(0.4, 0, 0.2, 1)';
-        brand.style.transform = '';
-        nav.style.transform = '';
-      });
-    };
-
-    window.addEventListener('scroll', () => {
-      if (!ticking) {
-        window.requestAnimationFrame(aggiorna);
-        ticking = true;
-      }
-    }, { passive: true });
+      window.addEventListener(
+        'scroll',
+        () => {
+          if (!ticking) {
+            window.requestAnimationFrame(aggiorna);
+            ticking = true;
+          }
+        },
+        { passive: true }
+      );
+    }
   }
 </script>
 
@@ -151,7 +190,6 @@ function attiva(href: string): boolean {
     font-size: var(--text-2xl);
     color: var(--color-accent);
     line-height: 1;
-    white-space: nowrap;
     transition: font-size 350ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
@@ -192,9 +230,13 @@ function attiva(href: string): boolean {
     border-radius: var(--radius-pill);
   }
 
+  /* Toggle hamburger: visibile solo da mobile */
+  .header__toggle {
+    display: none;
+  }
+
   /* Modalità "grande": logo prominente all'apertura della pagina (riga 1)
-     e nav su una propria "barra" sotto (riga 2). Le due barre si fondono
-     in una quando lo script aggiunge .is-ridotto. Attiva solo desktop. */
+     e nav su una propria "barra" sotto (riga 2). Solo desktop. */
   @media (min-width: 821px) {
     .header--grande:not(.is-ridotto) .header__inner {
       flex-direction: column;
@@ -224,15 +266,112 @@ function attiva(href: string): boolean {
     }
   }
 
+  /* Mobile e schermi stretti: hamburger + nav come dropdown */
   @media (max-width: 820px) {
     .header__inner {
-      flex-direction: column;
-      align-items: flex-start;
       gap: var(--space-3);
     }
 
     .header__brand-name {
       font-size: var(--text-xl);
+    }
+
+    .header__toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.75rem;
+      height: 2.75rem;
+      flex-shrink: 0;
+      background: transparent;
+      border: 1px solid var(--color-accent);
+      border-radius: var(--radius-md);
+      color: var(--color-accent);
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .header__toggle:hover {
+      background: color-mix(in srgb, var(--cdm-orange) 8%, transparent);
+    }
+
+    .header__toggle-icon,
+    .header__toggle-icon::before,
+    .header__toggle-icon::after {
+      display: block;
+      width: 1.25rem;
+      height: 2px;
+      background: currentColor;
+      border-radius: 2px;
+    }
+
+    .header__toggle-icon {
+      position: relative;
+      transition: background-color 150ms ease;
+    }
+
+    .header__toggle-icon::before,
+    .header__toggle-icon::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      transition: transform 220ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .header__toggle-icon::before { top: -0.4rem; }
+    .header__toggle-icon::after  { top:  0.4rem; }
+
+    .header.menu-aperto .header__toggle-icon {
+      background: transparent;
+    }
+    .header.menu-aperto .header__toggle-icon::before {
+      transform: translateY(0.4rem) rotate(45deg);
+    }
+    .header.menu-aperto .header__toggle-icon::after {
+      transform: translateY(-0.4rem) rotate(-45deg);
+    }
+
+    .header__nav {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--color-bg);
+      border-bottom: 1px solid var(--color-border);
+      padding: var(--space-4) var(--gutter);
+      box-shadow: 0 8px 24px rgba(20, 56, 74, 0.08);
+
+      visibility: hidden;
+      opacity: 0;
+      transform: translateY(-8px);
+      transition:
+        visibility 200ms,
+        opacity 200ms ease,
+        transform 200ms ease;
+    }
+
+    .header.menu-aperto .header__nav {
+      visibility: visible;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .header__nav-list {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+    }
+
+    .header__link {
+      display: block;
+      width: 100%;
+      padding: var(--space-3) 0;
+      font-size: var(--text-lg);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .header__link.is-attivo::after {
+      display: none;
     }
   }
 
@@ -240,7 +379,10 @@ function attiva(href: string): boolean {
     .header__inner,
     .header__brand,
     .header__brand-mark,
-    .header__brand-name {
+    .header__brand-name,
+    .header__nav,
+    .header__toggle-icon::before,
+    .header__toggle-icon::after {
       transition: none;
     }
   }
