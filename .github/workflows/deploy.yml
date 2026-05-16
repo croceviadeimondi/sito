@@ -1,0 +1,55 @@
+name: build e deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  # Per il webhook Directus (futuro): GH personal token → POST repos/.../dispatches con event_type "contenuti-aggiornati"
+  repository_dispatch:
+    types: [contenuti-aggiornati]
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    name: build statico e rsync su server
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build statico
+        run: npm run build
+        env:
+          DIRECTUS_URL: https://cms.croceviadeimondi.org
+
+      - name: Carica chiave SSH in agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
+
+      - name: Pinna host del server in known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Rsync di dist/ verso il server
+        run: |
+          rsync -avz --delete \
+            -e "ssh -o StrictHostKeyChecking=yes" \
+            ./dist/ \
+            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ secrets.DEPLOY_PATH }}"
