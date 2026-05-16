@@ -11,7 +11,7 @@ const { evento } = Astro.props;
 const urlImmagine = assetUrl(evento.locandina);
 ---
 
-<a href={`/eventi/${evento.slug}`} class="card-evento">
+<a href={`/eventi/${evento.slug}/`} class="card-evento">
   {urlImmagine && (
     <div class="card-evento__media">
       <img src={urlImmagine} alt="" loading="lazy" />

@@ -2,17 +2,18 @@
 const pathCorrente = Astro.url.pathname.replace(/\/$/, '') || '/';
 
 const voci: { etichetta: string; href: string }[] = [
-  { etichetta: 'Chi siamo', href: '/chi-siamo' },
-  { etichetta: 'Cosa facciamo', href: '/cosa-facciamo' },
-  { etichetta: 'Progetti', href: '/progetti' },
-  { etichetta: 'Eventi', href: '/eventi' },
-  { etichetta: 'Sostienici', href: '/sostienici' },
-  { etichetta: 'Contatti', href: '/contatti' },
+  { etichetta: 'Chi siamo', href: '/chi-siamo/' },
+  { etichetta: 'Cosa facciamo', href: '/cosa-facciamo/' },
+  { etichetta: 'Progetti', href: '/progetti/' },
+  { etichetta: 'Eventi', href: '/eventi/' },
+  { etichetta: 'Sostienici', href: '/sostienici/' },
+  { etichetta: 'Contatti', href: '/contatti/' },
 ];
 
 function attiva(href: string): boolean {
   if (href === '/') return pathCorrente === '/';
-  return pathCorrente === href || pathCorrente.startsWith(href + '/');
+  const hrefNoSlash = href.replace(/\/$/, '');
+  return pathCorrente === hrefNoSlash || pathCorrente.startsWith(hrefNoSlash + '/');
 }
 ---
 

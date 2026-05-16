@@ -2,18 +2,38 @@
 import Layout from '../layouts/Layout.astro';
 import IntestazionePagina from '../components/IntestazionePagina.astro';
 
-const ambiti: { sigla: string; nome: string; descrizione: string }[] = [
+interface Ambito {
+  sigla: string;
+  nome: string;
+  nomeHtml?: string;
+  descrizione: string;
+}
+
+const ambiti: Ambito[] = [
   {
-    sigla: 'CdM',
-    nome: 'Crocevia dei Mondi',
+    sigla: 'MV',
+    nome: 'Mana Vault',
     descrizione:
-      'Il brand generale dell\'associazione. Coordina i progetti trasversali, le collaborazioni con enti pubblici e privati e l\'animazione delle comunità di gioco.',
+      'L\'area dedicata ai giochi di carte da collezione: Magic: The Gathering, Pokemon, Yu-Gi-Oh! e altri. Tornei, demo, costruzione mazzi, scambi.',
   },
   {
-    sigla: 'MdG',
-    nome: 'Mondi di Grafite',
+    sigla: 'GdR',
+    nome: 'Giochi di Ruolo',
     descrizione:
-      'L\'area dedicata ai giochi: giochi da tavolo, di ruolo, di carte. Demo, tornei, laboratori in scuole e biblioteche.',
+      'L\'area dei giochi di ruolo: campagne lunghe, one-shot, narrazione condivisa. D&D, sistemi indie italiani, narrative game.',
+  },
+  {
+    sigla: 'BG',
+    nome: 'Boar(d)Games',
+    nomeHtml: 'Boar(<u>d</u>)Games',
+    descrizione:
+      'L\'area dei giochi da tavolo moderni: party game, strategici, cooperative, gateway. Serate gioco aperte a tutti.',
+  },
+  {
+    sigla: 'MdA',
+    nome: 'Mondi d\'Arte',
+    descrizione:
+      'L\'area dedicata alle arti visive e creative legate al gioco: illustrazione, miniature, design ludico, laboratori espressivi.',
   },
   {
     sigla: 'MtR',
@@ -40,7 +60,11 @@ const ambiti: { sigla: string; nome: string; descrizione: string }[] = [
         {ambiti.map((ambito) => (
           <article class="ambito">
             <span class="ambito__sigla">{ambito.sigla}</span>
-            <h2 class="ambito__nome">{ambito.nome}</h2>
+            {ambito.nomeHtml ? (
+              <h2 class="ambito__nome" set:html={ambito.nomeHtml} />
+            ) : (
+              <h2 class="ambito__nome">{ambito.nome}</h2>
+            )}
             <p class="ambito__descrizione">{ambito.descrizione}</p>
           </article>
         ))}
@@ -52,7 +76,7 @@ const ambiti: { sigla: string; nome: string; descrizione: string }[] = [
           Sei una scuola, una biblioteca, un ente del terzo settore?
           Possiamo costruire un'attività su misura per il tuo contesto.
         </p>
-        <a class="bottone" href="/contatti">Scrivici</a>
+        <a class="bottone" href="/contatti/">Scrivici</a>
       </div>
     </div>
   </section>

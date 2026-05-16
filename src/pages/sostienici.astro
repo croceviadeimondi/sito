@@ -33,20 +33,14 @@ const messaggio = impostazioni?.messaggio_donazioni ?? null;
 
         <article class="modo">
           <span class="modo__numero">01</span>
-          <h2>Destina il 5×1000</h2>
+          <h2>Tessera l'associazione</h2>
           <p>
-            Nella dichiarazione dei redditi, alla casella
-            <em>"Sostegno del volontariato e delle altre organizzazioni non lucrative…"</em>,
-            firma e indica il nostro codice fiscale.
+            Diventa socio: partecipi alla vita associativa, hai diritto di voto
+            in assemblea e accesso prioritario alle attività.
           </p>
-          {codiceFiscale ? (
-            <p class="modo__evidenza">
-              <span class="modo__etichetta">Codice fiscale</span>
-              <code>{codiceFiscale}</code>
-            </p>
-          ) : (
-            <p class="modo__nota">Il codice fiscale sarà pubblicato a breve.</p>
-          )}
+          <a class="bottone bottone--ghost" href="/contatti/">
+            Scrivici per iscriverti
+          </a>
         </article>
 
         <article class="modo">
@@ -83,14 +77,20 @@ const messaggio = impostazioni?.messaggio_donazioni ?? null;
 
         <article class="modo">
           <span class="modo__numero">03</span>
-          <h2>Tessera l'associazione</h2>
+          <h2>Destina il 5×1000</h2>
           <p>
-            Diventa socio: partecipi alla vita associativa, hai diritto di voto
-            in assemblea e accesso prioritario alle attività.
+            Nella dichiarazione dei redditi, alla casella
+            <em>"Sostegno del volontariato e delle altre organizzazioni non lucrative…"</em>,
+            firma e indica il nostro codice fiscale.
           </p>
-          <a class="bottone bottone--ghost" href="/contatti">
-            Scrivici per iscriverti
-          </a>
+          {codiceFiscale ? (
+            <p class="modo__evidenza">
+              <span class="modo__etichetta">Codice fiscale</span>
+              <code>{codiceFiscale}</code>
+            </p>
+          ) : (
+            <p class="modo__nota">Il codice fiscale sarà pubblicato a breve.</p>
+          )}
         </article>
 
       </div>
