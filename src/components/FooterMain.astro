@@ -1,8 +1,16 @@
 ---
-import { fetchSingleton } from '../lib/directus';
-import type { Impostazioni } from '../lib/types';
+import { fetchSingleton, fetchCollection } from '../lib/directus';
+import type { Impostazioni, Sede } from '../lib/types';
 
-const impostazioni = await fetchSingleton<Impostazioni>('impostazioni');
+const [impostazioni, sediLegali] = await Promise.all([
+  fetchSingleton<Impostazioni>('impostazioni'),
+  fetchCollection<Sede>('sedi', {
+    fields: 'id,nome,is_sede_legale,citta,indirizzo_completo',
+    filter: { is_sede_legale: { _eq: true } },
+    limit: 1,
+  }),
+]);
+const sedeLegale = sediLegali[0] ?? null;
 const annoCorrente = new Date().getFullYear();
 
 const denominazione = impostazioni?.denominazione_completa ?? 'Crocevia dei Mondi APS';
@@ -13,6 +21,9 @@ const emailPubblica = impostazioni?.email_principale ?? null;
 const tagline = impostazioni?.tagline
   ?? 'Il gioco come strumento sociale. Mondi che si incontrano nel Sud Italia.';
 const testoFooter = impostazioni?.testo_footer ?? null;
+
+const indirizzoSede = sedeLegale?.indirizzo_completo ?? null;
+const cittaSede = sedeLegale?.citta ?? null;
 ---
 
 <footer class="footer">
@@ -41,6 +52,9 @@ const testoFooter = impostazioni?.testo_footer ?? null;
       <h2 class="footer__titolo">Dati istituzionali</h2>
       <address>
         <strong>{denominazione}</strong>
+        {indirizzoSede && (
+          <><br />Sede legale: {indirizzoSede}{cittaSede && ` (${cittaSede})`}</>
+        )}
         {codiceFiscale && <><br />C.F. {codiceFiscale}</>}
         {partitaIva && <><br />P.IVA {partitaIva}</>}
         {runts && <><br />RUNTS n. {runts}</>}
@@ -83,8 +97,9 @@ const testoFooter = impostazioni?.testo_footer ?? null;
   }
 
   .footer__marchio {
-    font-family: var(--font-display);
+    font-family: var(--font-logo);
     font-size: var(--text-2xl);
+    color: var(--color-accent);
     display: block;
     margin-bottom: var(--space-3);
   }

@@ -4,7 +4,7 @@
 /*
  * Font display Dumbledore 2 — self-hosted.
  * Il file va aggiunto in public/fonts/Dumbledore2.woff2 (license non commerciale OK per APS).
- * Finché manca, il browser usa il fallback definito in --font-display.
+ * Finché manca, il browser usa il fallback definito in --font-logo.
  */
 @font-face {
   font-family: 'Dumbledore 2';
@@ -42,9 +42,9 @@ a:hover {
 }
 
 h1, h2, h3 {
-  font-family: var(--font-display);
-  font-weight: 400;
-  letter-spacing: 0.01em;
+  font-family: var(--font-body);
+  font-weight: 700;
+  letter-spacing: -0.015em;
 }
 
 h1 { font-size: var(--text-display); }
