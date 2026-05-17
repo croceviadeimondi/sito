@@ -1,17 +1,18 @@
 :root {
   /* Palette brand CDM */
-  --cdm-orange:        #E87A2E;
+  --cdm-orange:        #e45d20;
   --cdm-orange-light:  #F39C5C;
-  --cdm-petrol:        #14384A;
-  --cdm-space-purple:  #2B1A5E;
+  --cdm-accent:        #db4228;
+  --cdm-petrol:        #1e2d33;
+  --cdm-space-purple:  #212f49;
   --cdm-cream:         #FAF5EC;
 
   /* Ruoli semantici */
   --color-bg:          var(--cdm-cream);
   --color-text:        var(--cdm-petrol);
   --color-text-muted:  color-mix(in srgb, var(--cdm-petrol) 70%, transparent);
-  --color-accent:      var(--cdm-orange);
-  --color-accent-hover: var(--cdm-orange-light);
+  --color-accent:      var(--cdm-accent);
+  --color-accent-hover: var(--cdm-orange);
   --color-surface-dark: var(--cdm-space-purple);
   --color-on-dark:     var(--cdm-cream);
   --color-border:      color-mix(in srgb, var(--cdm-petrol) 15%, transparent);
