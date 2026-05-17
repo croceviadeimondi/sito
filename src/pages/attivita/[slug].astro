@@ -4,6 +4,7 @@ import IntestazionePagina from '../../components/IntestazionePagina.astro';
 import CardEvento from '../../components/CardEvento.astro';
 import { fetchCollection } from '../../lib/directus';
 import { immagine } from '../../lib/immagini';
+import { mdPlain } from '../../lib/markdown';
 import type { Attivita, Evento } from '../../lib/types';
 
 export async function getStaticPaths() {
@@ -23,6 +24,8 @@ interface Props {
 }
 
 const { attivita } = Astro.props;
+// descrizione_breve è markdown: per sommario e meta serve testo piatto
+const descrizionePlain = mdPlain(attivita.descrizione_breve);
 const adesso = new Date().toISOString();
 
 const [prossimiAppuntamenti, archivio, tutteAttivita, fotoHero] = await Promise.all([
@@ -55,12 +58,12 @@ for (const a of tutteAttivita) {
 
 <Layout
   titolo={attivita.nome ?? 'Attività'}
-  descrizione={attivita.descrizione_breve ?? `Un'area di attività del Crocevia dei Mondi APS`}
+  descrizione={descrizionePlain || `Un'area di attività del Crocevia dei Mondi APS`}
 >
   <IntestazionePagina
     titolo={attivita.nome ?? 'Attività'}
     occhiello="Le nostre aree"
-    sommario={attivita.descrizione_breve ?? undefined}
+    sommario={descrizionePlain || undefined}
   />
 
   <section class="section section--hero">

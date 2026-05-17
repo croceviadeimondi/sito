@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import IntestazionePagina from '../components/IntestazionePagina.astro';
 import { fetchCollection } from '../lib/directus';
+import { mdInline } from '../lib/markdown';
 import type { Attivita } from '../lib/types';
 
 const attivita = await fetchCollection<Attivita>('attivita', { sort: 'sort' });
@@ -32,7 +33,7 @@ const attivita = await fetchCollection<Attivita>('attivita', { sort: 'sort' });
                 ) : (
                   <h2 class="ambito__nome">{a.nome}</h2>
                 )}
-                <p class="ambito__descrizione">{a.descrizione_breve}</p>
+                <p class="ambito__descrizione" set:html={mdInline(a.descrizione_breve)} />
                 {a.cadenza && (
                   <p class="ambito__cadenza">{a.cadenza}</p>
                 )}
