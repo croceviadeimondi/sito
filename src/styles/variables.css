@@ -7,6 +7,7 @@
 
   /* Ruoli semantici */
   --color-bg:          var(--cdm-cream);
+  --color-surface:     #ffffff;
   --color-text:        var(--cdm-petrol);
   --color-text-muted:  color-mix(in srgb, var(--cdm-petrol) 70%, transparent);
   --color-accent:      var(--cdm-orange);

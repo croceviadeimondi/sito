@@ -31,13 +31,11 @@ function attiva(href: string): boolean {
   <div class="container header__inner">
     <a href="/" class="header__brand" aria-label="Crocevia dei Mondi — home">
       {urlLogo ? (
-        <img src={urlLogo} alt="Crocevia dei Mondi" class="header__logo" />
+        <img src={urlLogo} alt="" class="header__logo" />
       ) : (
-        <>
-          <span class="header__brand-mark">CdM</span>
-          <span class="header__brand-name">Crocevia dei Mondi</span>
-        </>
+        <span class="header__brand-mark">CdM</span>
       )}
+      <span class="header__brand-name">Crocevia dei Mondi</span>
     </a>
 
     <button
@@ -159,7 +157,7 @@ function attiva(href: string): boolean {
 
 <style>
   .header {
-    background: var(--color-bg);
+    background: var(--color-surface);
     border-bottom: 1px solid var(--color-border);
     position: sticky;
     top: 0;
@@ -363,7 +361,7 @@ function attiva(href: string): boolean {
       top: 100%;
       left: 0;
       right: 0;
-      background: var(--color-bg);
+      background: var(--color-surface);
       border-bottom: 1px solid var(--color-border);
       padding: var(--space-4) var(--gutter);
       box-shadow: 0 8px 24px color-mix(in srgb, var(--cdm-petrol) 12%, transparent);
