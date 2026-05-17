@@ -222,9 +222,8 @@ const fotoGallery = fotoCarosello
         else start();
       });
 
-      // L'utente che interagisce mette in pausa temporanea
-      lista.addEventListener('mouseenter', stop);
-      lista.addEventListener('mouseleave', start);
+      // L'utente che interagisce mette in pausa temporanea (no hover desktop:
+      // l'autoplay deve continuare anche quando il mouse è sopra)
       lista.addEventListener('touchstart', pausa, { passive: true });
       lista.addEventListener('wheel', pausa, { passive: true });
 
