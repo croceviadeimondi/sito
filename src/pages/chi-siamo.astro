@@ -43,7 +43,7 @@ function etichettaTipo(tipo: string): string {
   <IntestazionePagina
     titolo="Chi siamo"
     occhiello="L'associazione"
-    sommario="Crocevia dei Mondi è un'Associazione di Promozione Sociale del Sud Italia. Crediamo che il gioco — da tavolo, di ruolo, narrativo — sia uno strumento serio per costruire comunità."
+    sommario="Crocevia dei Mondi è un'Associazione di Promozione Sociale del Sud Italia. Crediamo che il gioco - da tavolo, di ruolo, narrativo - sia uno strumento serio per costruire comunità."
   />
 
   <section class="section">
@@ -205,8 +205,8 @@ function etichettaTipo(tipo: string): string {
   }
 
   .membro {
-    /* 3.5 card visibili nello scroll area (100vw - 2 gutter - 3 gap interni) / 3.5 */
-    flex: 0 0 max(180px, calc((100vw - 2 * var(--gutter) - 3 * var(--space-4)) / 3.5));
+    /* 4 card visibili: (100vw - 2 gutter - 3 gap) / 4, con un minimo per mobile */
+    flex: 0 0 max(170px, calc((100vw - 2 * var(--gutter) - 3 * var(--space-4)) / 4));
     scroll-snap-align: start;
     padding: var(--space-6);
     background: var(--color-surface);

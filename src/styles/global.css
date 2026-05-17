@@ -2,7 +2,7 @@
 @import './reset.css';
 
 /*
- * Font display Dumbledore 2 — self-hosted.
+ * Font display Dumbledore 2 - self-hosted.
  * Il file va aggiunto in public/fonts/Dumbledore2.woff2 (license non commerciale OK per APS).
  * Finché manca, il browser usa il fallback definito in --font-logo.
  */
