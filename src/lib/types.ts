@@ -1,6 +1,13 @@
 export type Status = 'published' | 'draft' | 'archived';
 
-export type SubBrand = 'crocevia' | 'grafite' | 'righe' | (string & {});
+export type SubBrand =
+  | 'crocevia'
+  | 'mana_vault'
+  | 'giochi_di_ruolo'
+  | 'boardgames'
+  | 'arte'
+  | 'righe'
+  | (string & {});
 export type StatoProgetto =
   | 'in_corso'
   | 'concluso'
@@ -64,6 +71,7 @@ export interface Evento {
   link_prenotazione: string | null;
   sede: string | null;
   progetto_collegato: string | null;
+  mostra_nella_home: boolean;
 }
 
 export type TipoMediaEsterno = 'articolo' | 'video' | 'podcast' | (string & {});
