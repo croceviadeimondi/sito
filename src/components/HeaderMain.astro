@@ -1,9 +1,14 @@
 ---
+import { fetchSingleton, assetUrl } from '../lib/directus';
+import type { Impostazioni } from '../lib/types';
+
 interface Props {
   grande?: boolean;
 }
 
 const { grande = false } = Astro.props;
+const impostazioni = await fetchSingleton<Impostazioni>('impostazioni');
+const urlLogo = assetUrl(impostazioni?.logo_principale);
 const pathCorrente = Astro.url.pathname.replace(/\/$/, '') || '/';
 
 const voci: { etichetta: string; href: string }[] = [
@@ -25,8 +30,14 @@ function attiva(href: string): boolean {
 <header class:list={['header', { 'header--grande': grande }]} data-grande={grande}>
   <div class="container header__inner">
     <a href="/" class="header__brand" aria-label="Crocevia dei Mondi — home">
-      <span class="header__brand-mark">CdM</span>
-      <span class="header__brand-name">Crocevia dei Mondi</span>
+      {urlLogo ? (
+        <img src={urlLogo} alt="Crocevia dei Mondi" class="header__logo" />
+      ) : (
+        <>
+          <span class="header__brand-mark">CdM</span>
+          <span class="header__brand-name">Crocevia dei Mondi</span>
+        </>
+      )}
     </a>
 
     <button
@@ -193,6 +204,13 @@ function attiva(href: string): boolean {
     line-height: 1;
   }
 
+  .header__logo {
+    display: block;
+    height: 2.5rem;
+    width: auto;
+    object-fit: contain;
+  }
+
   .header__nav-list {
     display: flex;
     flex-wrap: wrap;
@@ -258,6 +276,9 @@ function attiva(href: string): boolean {
     .header--grande:not(.is-ridotto) .header__brand-name {
       font-size: 5rem;
     }
+    .header--grande:not(.is-ridotto) .header__logo {
+      height: 6rem;
+    }
     .header--grande:not(.is-ridotto) .header__nav {
       display: flex;
       justify-content: center;
@@ -277,6 +298,9 @@ function attiva(href: string): boolean {
 
     .header__brand-name {
       font-size: var(--text-xl);
+    }
+    .header__logo {
+      height: 2rem;
     }
 
     .header__toggle {

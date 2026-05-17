@@ -1,5 +1,5 @@
 ---
-import { fetchSingleton, fetchCollection } from '../lib/directus';
+import { fetchSingleton, fetchCollection, assetUrl } from '../lib/directus';
 import type { Impostazioni, Sede } from '../lib/types';
 
 const [impostazioni, sediLegali] = await Promise.all([
@@ -24,12 +24,18 @@ const testoFooter = impostazioni?.testo_footer ?? null;
 
 const indirizzoSede = sedeLegale?.indirizzo_completo ?? null;
 const cittaSede = sedeLegale?.citta ?? null;
+
+const urlLogoFooter = assetUrl(impostazioni?.logo_chiaro ?? impostazioni?.logo_principale);
 ---
 
 <footer class="footer">
   <div class="container footer__griglia">
     <div class="footer__brand">
-      <span class="footer__marchio">Crocevia dei Mondi</span>
+      {urlLogoFooter ? (
+        <img src={urlLogoFooter} alt="Crocevia dei Mondi" class="footer__logo" />
+      ) : (
+        <span class="footer__marchio">Crocevia dei Mondi</span>
+      )}
       <p class="footer__payoff">{tagline}</p>
       {emailPubblica && (
         <p class="footer__contatto">
@@ -103,6 +109,14 @@ const cittaSede = sedeLegale?.citta ?? null;
     font-size: var(--text-2xl);
     color: var(--color-accent);
     display: block;
+    margin-bottom: var(--space-3);
+  }
+
+  .footer__logo {
+    display: block;
+    height: 3.5rem;
+    width: auto;
+    object-fit: contain;
     margin-bottom: var(--space-3);
   }
 
