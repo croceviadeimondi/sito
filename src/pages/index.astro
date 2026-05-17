@@ -90,26 +90,26 @@ const formattatoreDataBreve = new Intl.DateTimeFormat('it-IT', {
         })}
       </ul>
     )}
-    <div class="container hero__azioni-wrap">
-      <div class="hero__azioni">
-        <a class="bottone" href="/attivita/">Scopri le nostre attività</a>
-      </div>
-    </div>
-
     {fotoGallery.length > 0 && (
-      <ul role="list" class="hero__foto-carosello">
-        {fotoGallery.map((f) => (
-          <li>
-            <a href={`/eventi/${f.slug}/`} class="hero__foto-item">
-              <img
-                src={`${f.url}?width=640&height=640&fit=cover&format=jpg&quality=80`}
-                alt={f.titolo}
-                loading="lazy"
-              />
-            </a>
-          </li>
-        ))}
-      </ul>
+      <section class="banner-attivita" aria-label="Scopri le nostre attività">
+        <ul role="list" class="banner-attivita__lista">
+          {fotoGallery.map((f) => (
+            <li class="banner-attivita__slide">
+              <a href={`/eventi/${f.slug}/`} class="banner-attivita__link">
+                <img
+                  src={`${f.url}?width=1600&height=720&fit=cover&format=jpg&quality=82`}
+                  alt={f.titolo}
+                  loading="lazy"
+                />
+                <div class="banner-attivita__overlay">
+                  <p class="banner-attivita__cta">Scopri le nostre attività</p>
+                  <h2 class="banner-attivita__nome">{f.titolo}</h2>
+                </div>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
     )}
   </section>
 
@@ -239,64 +239,98 @@ const formattatoreDataBreve = new Intl.DateTimeFormat('it-IT', {
     color: var(--color-on-dark);
   }
 
-  .hero__azioni-wrap {
-    display: flex;
-    justify-content: flex-start;
+  /* Banner full-width: foto curate (flag in_carosello_home) con CTA overlay.
+     Click sulla slide -> dettaglio del singolo evento. */
+  .banner-attivita {
+    margin-top: var(--space-8);
   }
 
-  .hero__azioni {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-4);
-  }
-
-  /* Secondo carosello: foto dalle gallery degli eventi (quadrate, scorrono sotto i CTA) */
-  .hero__foto-carosello {
+  .banner-attivita__lista {
     list-style: none;
-    margin: var(--space-8) 0 0;
-    padding: 0 var(--gutter);
+    margin: 0;
+    padding: 0;
     display: flex;
-    gap: var(--space-3);
     overflow-x: auto;
-    scroll-snap-type: x proximity;
+    scroll-snap-type: x mandatory;
     scrollbar-width: thin;
     scrollbar-color: var(--color-accent) transparent;
     -webkit-overflow-scrolling: touch;
   }
 
-  .hero__foto-carosello::-webkit-scrollbar { height: 6px; }
-  .hero__foto-carosello::-webkit-scrollbar-thumb {
+  .banner-attivita__lista::-webkit-scrollbar { height: 6px; }
+  .banner-attivita__lista::-webkit-scrollbar-thumb {
     background: var(--color-accent);
     border-radius: var(--radius-pill);
   }
 
-  .hero__foto-item {
-    flex: 0 0 auto;
-    display: block;
-    width: 220px;
-    aspect-ratio: 1;
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    background: color-mix(in srgb, var(--cdm-petrol) 10%, transparent);
+  .banner-attivita__slide {
+    flex: 0 0 100%;
     scroll-snap-align: start;
-    transition: transform 200ms ease;
   }
 
-  .hero__foto-item:hover {
-    transform: scale(1.02);
+  .banner-attivita__link {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 7;
+    max-height: 70vh;
+    overflow: hidden;
+    text-decoration: none;
+    color: var(--color-on-dark);
+    background: color-mix(in srgb, var(--cdm-petrol) 15%, transparent);
   }
 
-  .hero__foto-item img {
+  .banner-attivita__link img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
   }
 
+  .banner-attivita__overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: var(--space-12) var(--gutter) var(--space-10);
+    background: linear-gradient(
+      to top,
+      color-mix(in srgb, var(--cdm-petrol) 88%, transparent) 0%,
+      color-mix(in srgb, var(--cdm-petrol) 40%, transparent) 50%,
+      transparent 100%
+    );
+  }
+
+  .banner-attivita__cta {
+    margin: 0 0 var(--space-2);
+    font-size: var(--text-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-weight: 700;
+    color: var(--cdm-orange-light);
+  }
+
+  .banner-attivita__nome {
+    margin: 0;
+    font-size: var(--text-display);
+    line-height: 1.05;
+    color: var(--color-on-dark);
+    text-shadow: 0 2px 12px color-mix(in srgb, var(--cdm-petrol) 60%, transparent);
+  }
+
   @media (max-width: 640px) {
     .hero__nome { font-size: var(--text-xl); }
     .hero__slot { width: 84vw; }
-    .hero__foto-item { width: 160px; }
+    .banner-attivita__link {
+      aspect-ratio: 4 / 5;
+    }
+    .banner-attivita__nome {
+      font-size: var(--text-2xl);
+    }
+    .banner-attivita__overlay {
+      padding: var(--space-8) var(--space-4) var(--space-6);
+    }
   }
 
   .section--alt {
