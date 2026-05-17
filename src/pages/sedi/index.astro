@@ -1,0 +1,210 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import IntestazionePagina from '../../components/IntestazionePagina.astro';
+import { fetchCollection } from '../../lib/directus';
+import { formattaAnno } from '../../lib/formato';
+import type { Sede } from '../../lib/types';
+
+const tutte = await fetchCollection<Sede>('sedi', {
+  fields: 'id,nome,slug,is_sede_legale,citta,indirizzo_completo,email,telefono,descrizione,attiva_dal,sort,google_maps_embed_url',
+  sort: 'sort,nome',
+});
+// La sede legale è solo per scopi amministrativi (footer/contatti):
+// /sedi/ mostra le sedi operative dove si svolgono le attività.
+const sedi = tutte.filter((s) => !s.is_sede_legale);
+
+function embedSicuro(url: string | null): string | null {
+  if (!url) return null;
+  return url.startsWith('https://www.google.com/maps/embed?') ? url : null;
+}
+---
+
+<Layout
+  titolo="Le nostre sedi"
+  descrizione="Le sedi del Crocevia dei Mondi APS: dove ci trovi e dove giochiamo."
+>
+  <IntestazionePagina
+    titolo="Le nostre sedi"
+    occhiello="Dove ci trovi"
+    sommario="I luoghi dove ci riuniamo, dove animiamo le attività e che chiamiamo casa."
+  />
+
+  <section class="section">
+    <div class="container">
+      {sedi.length === 0 ? (
+        <p class="vuota">
+          Stiamo aggiornando l'elenco delle sedi. Torna a trovarci.
+        </p>
+      ) : (
+        <ul role="list" class="lista">
+          {sedi.map((s) => {
+            const embed = embedSicuro(s.google_maps_embed_url);
+            return (
+              <li class="sede">
+                <div class="sede__info">
+                  <p class="sede__citta">{s.citta}</p>
+                  <h2 class="sede__nome">{s.nome}</h2>
+
+                  {s.indirizzo_completo && (
+                    <p class="sede__indirizzo">{s.indirizzo_completo}</p>
+                  )}
+
+                  {s.descrizione && (
+                    <p class="sede__descrizione">{s.descrizione}</p>
+                  )}
+
+                  <dl class="sede__contatti">
+                    {s.email && (
+                      <div>
+                        <dt>Email</dt>
+                        <dd><a href={`mailto:${s.email}`}>{s.email}</a></dd>
+                      </div>
+                    )}
+                    {s.telefono && (
+                      <div>
+                        <dt>Telefono</dt>
+                        <dd><a href={`tel:${s.telefono.replace(/\s+/g, '')}`}>{s.telefono}</a></dd>
+                      </div>
+                    )}
+                    {s.attiva_dal && (
+                      <div>
+                        <dt>Attiva dal</dt>
+                        <dd>{formattaAnno(s.attiva_dal)}</dd>
+                      </div>
+                    )}
+                  </dl>
+                </div>
+
+                {embed && (
+                  <div class="sede__mappa">
+                    <iframe
+                      src={embed}
+                      title={`Mappa di ${s.nome}`}
+                      loading="lazy"
+                      referrerpolicy="no-referrer-when-downgrade"
+                      allowfullscreen
+                    ></iframe>
+                  </div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .vuota {
+    color: var(--color-text-muted);
+    font-size: var(--text-lg);
+    padding: var(--space-8);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-md);
+    text-align: center;
+  }
+
+  .lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-12);
+  }
+
+  .sede {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+    padding: var(--space-8);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  @media (min-width: 820px) {
+    .sede {
+      grid-template-columns: 1fr 1fr;
+      align-items: start;
+    }
+  }
+
+  .sede__citta {
+    color: var(--color-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: var(--text-sm);
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .sede__nome {
+    margin: var(--space-2) 0 var(--space-3);
+    font-size: var(--text-2xl);
+  }
+
+  .sede__indirizzo {
+    margin: 0 0 var(--space-3);
+  }
+
+  .sede__descrizione {
+    margin: var(--space-3) 0;
+    color: var(--color-text);
+  }
+
+  .sede__contatti {
+    margin: var(--space-4) 0 0;
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .sede__contatti > div {
+    display: grid;
+    grid-template-columns: 7rem 1fr;
+    gap: var(--space-3);
+    font-size: var(--text-sm);
+  }
+
+  .sede__contatti dt {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-text-muted);
+  }
+
+  .sede__contatti dd {
+    margin: 0;
+  }
+
+  .sede__contatti a {
+    color: var(--color-accent);
+    text-decoration: none;
+    word-break: break-word;
+  }
+
+  .sede__contatti a:hover {
+    text-decoration: underline;
+  }
+
+  .sede__mappa {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: color-mix(in srgb, var(--cdm-petrol) 10%, transparent);
+  }
+
+  .sede__mappa iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+
+  @media (max-width: 540px) {
+    .sede__contatti > div {
+      grid-template-columns: 1fr;
+      gap: var(--space-1);
+    }
+  }
+</style>

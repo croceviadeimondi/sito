@@ -64,6 +64,7 @@ export type TipoMediaEsterno = 'articolo' | 'video' | 'podcast' | (string & {});
 
 export interface MediaEsterno {
   id: string;
+  status: Status;
   sort: number | null;
   tipo: TipoMediaEsterno;
   titolo: string;
@@ -96,6 +97,7 @@ export interface Sede {
   telefono: string | null;
   descrizione: string | null;
   attiva_dal: string | null;
+  google_maps_embed_url: string | null;
 }
 
 export interface Progetto {
