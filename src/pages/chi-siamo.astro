@@ -181,13 +181,14 @@ function etichettaTipo(tipo: string): string {
 
   .direttivo {
     list-style: none;
-    /* Sfora la container-narrow per dare aria al carosello: occupa fino al bordo
-       del viewport ma allinea la prima card al testo della colonna. */
+    /* Sfora la container-narrow fino al bordo del viewport, prima card
+       allineata al gutter di pagina (più a sinistra del testo della colonna). */
     margin-block: 0;
     margin-inline: calc(50% - 50vw);
     padding-block: 0 var(--space-3);
-    padding-inline-start: calc(50vw - 50%);
+    padding-inline-start: var(--gutter);
     padding-inline-end: var(--gutter);
+    scroll-padding-inline-start: var(--gutter);
     display: flex;
     gap: var(--space-4);
     overflow-x: auto;
@@ -204,8 +205,8 @@ function etichettaTipo(tipo: string): string {
   }
 
   .membro {
-    flex: 0 0 auto;
-    width: 220px;
+    /* 3.5 card visibili nello scroll area (100vw - 2 gutter - 3 gap interni) / 3.5 */
+    flex: 0 0 max(180px, calc((100vw - 2 * var(--gutter) - 3 * var(--space-4)) / 3.5));
     scroll-snap-align: start;
     padding: var(--space-6);
     background: var(--color-surface);
