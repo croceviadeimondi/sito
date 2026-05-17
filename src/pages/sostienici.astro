@@ -32,13 +32,12 @@ const messaggio = impostazioni?.messaggio_donazioni ?? null;
       <div class="modi">
 
         <article class="modo">
-          <span class="modo__numero">01</span>
           <h2>Diventa socio</h2>
           <p>
             Il modo migliore per sostenerci è esserci in prima fila. Le cose
             da fare sono molte e le competenze che ci mancano sono spesso
-            quelle che tu hai. Tessera l'associazione e portala avanti
-            insieme a noi.
+            quelle che tu hai. Tesserarsi è semplice, e ti garantisce
+            benefit anche fuori dalle nostre sedi!
           </p>
           <a class="bottone bottone--ghost" href="/tesserati/">
             Compila il modulo
@@ -46,12 +45,11 @@ const messaggio = impostazioni?.messaggio_donazioni ?? null;
         </article>
 
         <article class="modo">
-          <span class="modo__numero">02</span>
           <h2>Fai una donazione</h2>
           <p>
-            Anche una piccola donazione una tantum ci permette di acquistare
-            materiali, coprire spese di trasferta nei progetti scolastici e
-            sostenere i volontari.
+            Anche una piccola donazione una tantum può aiutare a coprire i
+            costi di materiali, trasferte, le sedi e i progetti timbrati
+            Crocevia.
           </p>
 
           {iban && (
@@ -78,7 +76,6 @@ const messaggio = impostazioni?.messaggio_donazioni ?? null;
         </article>
 
         <article class="modo">
-          <span class="modo__numero">03</span>
           <h2>Destina il 5×1000</h2>
           <p>
             Nella dichiarazione dei redditi, alla casella
@@ -112,6 +109,10 @@ const messaggio = impostazioni?.messaggio_donazioni ?? null;
   .modi {
     display: grid;
     gap: var(--space-8);
+    /* Colonna singola di default: centrata e non troppo larga. */
+    grid-template-columns: 1fr;
+    max-width: 480px;
+    margin-inline: auto;
   }
 
   .modo {
@@ -129,17 +130,9 @@ const messaggio = impostazioni?.messaggio_donazioni ?? null;
     margin-top: auto;
   }
 
-  .modo__numero {
-    font-family: var(--font-body);
-    font-weight: 700;
-    font-size: var(--text-3xl);
-    color: var(--color-accent);
-    line-height: 1;
-    letter-spacing: -0.02em;
-  }
-
   .modo h2 {
     margin: 0;
+    font-size: var(--text-2xl);
   }
 
   .modo__evidenza {
@@ -183,8 +176,10 @@ const messaggio = impostazioni?.messaggio_donazioni ?? null;
     font-style: italic;
   }
 
-  @media (min-width: 720px) {
+  /* Tre colonne da 820px in su: sotto, una sola colonna verticale. */
+  @media (min-width: 820px) {
     .modi {
+      max-width: none;
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
