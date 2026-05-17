@@ -60,6 +60,20 @@ export interface Evento {
   progetto_collegato: string | null;
 }
 
+export type TipoMediaEsterno = 'articolo' | 'video' | 'podcast' | (string & {});
+
+export interface MediaEsterno {
+  id: string;
+  sort: number | null;
+  tipo: TipoMediaEsterno;
+  titolo: string;
+  url: string;
+  fonte: string | null;
+  data: string | null;
+  progetto: string | null;
+  evento: string | null;
+}
+
 export interface Attivita {
   UUID: string;
   status: Status;

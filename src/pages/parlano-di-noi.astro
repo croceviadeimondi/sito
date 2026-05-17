@@ -1,0 +1,133 @@
+---
+import Layout from '../layouts/Layout.astro';
+import IntestazionePagina from '../components/IntestazionePagina.astro';
+import { fetchCollection } from '../lib/directus';
+import { formattaData } from '../lib/formato';
+import type { MediaEsterno } from '../lib/types';
+
+const media = await fetchCollection<MediaEsterno>('media_esterni', {
+  sort: '-data,-id',
+});
+
+function etichettaTipo(tipo: string): string {
+  switch (tipo) {
+    case 'articolo': return 'Articolo';
+    case 'video': return 'Video';
+    case 'podcast': return 'Podcast';
+    default: return tipo;
+  }
+}
+---
+
+<Layout
+  titolo="Parlano di noi"
+  descrizione="Articoli, video e podcast che parlano del Crocevia dei Mondi APS."
+>
+  <IntestazionePagina
+    titolo="Parlano di noi"
+    occhiello="Rassegna stampa"
+    sommario="Articoli, video, podcast: ecco dove ci hanno raccontato e dove abbiamo raccontato di noi."
+  />
+
+  <section class="section">
+    <div class="container container-narrow">
+      {media.length === 0 ? (
+        <p class="vuota">
+          Ancora niente in rassegna — le menzioni che riceveremo finiranno qui.
+        </p>
+      ) : (
+        <ul role="list" class="rassegna">
+          {media.map((m) => (
+            <li>
+              <a href={m.url} rel="noopener" target="_blank" class="voce">
+                <div class="voce__meta">
+                  <span class="voce__tipo">{etichettaTipo(m.tipo)}</span>
+                  {m.fonte && <span class="voce__fonte">{m.fonte}</span>}
+                  {m.data && (
+                    <time class="voce__data" datetime={m.data}>
+                      {formattaData(m.data)}
+                    </time>
+                  )}
+                </div>
+                <h2 class="voce__titolo">{m.titolo}</h2>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .vuota {
+    color: var(--color-text-muted);
+    font-size: var(--text-lg);
+    padding: var(--space-8);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-md);
+    text-align: center;
+  }
+
+  .rassegna {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .voce {
+    display: block;
+    padding: var(--space-6);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: var(--color-text);
+    transition: border-color 150ms ease, transform 150ms ease;
+  }
+
+  .voce:hover {
+    border-color: var(--color-accent);
+    transform: translateY(-1px);
+  }
+
+  .voce__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-2);
+  }
+
+  .voce__tipo {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    color: var(--color-accent);
+  }
+
+  .voce__fonte {
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .voce__data {
+    margin-left: auto;
+  }
+
+  .voce__titolo {
+    margin: 0;
+    font-size: var(--text-xl);
+  }
+
+  @media (max-width: 540px) {
+    .voce__data {
+      margin-left: 0;
+    }
+  }
+</style>

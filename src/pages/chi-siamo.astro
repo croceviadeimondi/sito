@@ -1,6 +1,23 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import IntestazionePagina from '../components/IntestazionePagina.astro';
+import { fetchCollection } from '../lib/directus';
+import { formattaData } from '../lib/formato';
+import type { MediaEsterno } from '../lib/types';
+
+const mediaRecenti = await fetchCollection<MediaEsterno>('media_esterni', {
+  sort: '-data,-id',
+  limit: 3,
+});
+
+function etichettaTipo(tipo: string): string {
+  switch (tipo) {
+    case 'articolo': return 'Articolo';
+    case 'video': return 'Video';
+    case 'podcast': return 'Podcast';
+    default: return tipo;
+  }
+}
 ---
 
 <Layout
@@ -50,6 +67,35 @@ import IntestazionePagina from '../components/IntestazionePagina.astro';
       </p>
     </div>
   </section>
+
+  {mediaRecenti.length > 0 && (
+    <section class="section section--alt">
+      <div class="container container-narrow">
+        <header class="parlano__head">
+          <h2>Parlano di noi</h2>
+          <a href="/parlano-di-noi/" class="parlano__link">Tutta la rassegna →</a>
+        </header>
+        <ul role="list" class="parlano">
+          {mediaRecenti.map((m) => (
+            <li>
+              <a href={m.url} rel="noopener" target="_blank" class="parlano__voce">
+                <div class="parlano__meta">
+                  <span class="parlano__tipo">{etichettaTipo(m.tipo)}</span>
+                  {m.fonte && <span class="parlano__fonte">{m.fonte}</span>}
+                  {m.data && (
+                    <time class="parlano__data" datetime={m.data}>
+                      {formattaData(m.data)}
+                    </time>
+                  )}
+                </div>
+                <span class="parlano__titolo">{m.titolo}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
 </Layout>
 
 <style>
@@ -80,5 +126,88 @@ import IntestazionePagina from '../components/IntestazionePagina.astro';
     border-left: 3px solid var(--color-accent);
     background: color-mix(in srgb, var(--cdm-orange) 6%, transparent);
     border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  }
+
+  .section--alt {
+    background: color-mix(in srgb, var(--cdm-petrol) 6%, var(--color-bg));
+  }
+
+  .parlano__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+  }
+
+  .parlano__head h2 {
+    margin: 0;
+  }
+
+  .parlano__link {
+    text-decoration: none;
+    color: var(--color-accent);
+    font-weight: 600;
+  }
+
+  .parlano {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .parlano__voce {
+    display: block;
+    padding: var(--space-4) var(--space-6);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: var(--color-text);
+    transition: border-color 150ms ease;
+  }
+
+  .parlano__voce:hover {
+    border-color: var(--color-accent);
+  }
+
+  .parlano__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-1);
+  }
+
+  .parlano__tipo {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    color: var(--color-accent);
+  }
+
+  .parlano__fonte {
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .parlano__data {
+    margin-left: auto;
+  }
+
+  .parlano__titolo {
+    font-weight: 500;
+  }
+
+  @media (max-width: 540px) {
+    .parlano__data {
+      margin-left: 0;
+    }
   }
 </style>
