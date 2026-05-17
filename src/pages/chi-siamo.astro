@@ -82,11 +82,11 @@ function etichettaTipo(tipo: string): string {
         </li>
       </ul>
 
-      <h2>Il direttivo</h2>
+      <h2>Letteralmente noi</h2>
       {direttivo.length === 0 ? (
         <p>
-          L'associazione è guidata da un direttivo eletto. I profili dei membri,
-          con ruoli e brevi biografie, saranno pubblicati a breve.
+          Le facce dietro all'associazione: direttivo, soci, collaboratori.
+          I profili saranno pubblicati a breve.
         </p>
       ) : (
         <ul role="list" class="direttivo">
@@ -182,13 +182,26 @@ function etichettaTipo(tipo: string): string {
   .direttivo {
     list-style: none;
     margin: 0;
-    padding: 0;
-    display: grid;
-    gap: var(--space-6);
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    padding: 0 0 var(--space-3);
+    display: flex;
+    gap: var(--space-4);
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-accent) transparent;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .direttivo::-webkit-scrollbar { height: 8px; }
+  .direttivo::-webkit-scrollbar-thumb {
+    background: var(--color-accent);
+    border-radius: var(--radius-pill);
   }
 
   .membro {
+    flex: 0 0 auto;
+    width: 220px;
+    scroll-snap-align: start;
     padding: var(--space-6);
     background: var(--color-surface);
     border: 1px solid var(--color-border);
