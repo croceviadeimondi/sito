@@ -6,8 +6,8 @@ import { fetchCollection, assetUrl } from '../lib/directus';
 import type { Evento, Progetto } from '../lib/types';
 
 interface FotoCaroselloItem {
-  directus_files_id: string;
-  eventi: { titolo: string; slug: string } | null;
+  directus_files_id: string | null;
+  eventi_id: { titolo: string; slug: string } | null;
 }
 
 const adesso = new Date().toISOString();
@@ -31,7 +31,7 @@ const [prossimiEventi, progettiVetrina, heroEventi, fotoCarosello] = await Promi
   // sulla junction eventi_files. Espandiamo l'evento parent per ricavare
   // titolo (alt) e slug (link al dettaglio).
   fetchCollection<FotoCaroselloItem>('eventi_files', {
-    fields: 'directus_files_id,eventi.titolo,eventi.slug',
+    fields: 'directus_files_id,eventi_id.titolo,eventi_id.slug',
     filter: { in_carosello_home: { _eq: true } },
     pubblicato: false,
     limit: 24,
@@ -41,8 +41,8 @@ const [prossimiEventi, progettiVetrina, heroEventi, fotoCarosello] = await Promi
 const fotoGallery = fotoCarosello
   .map((f) => {
     const url = assetUrl(f.directus_files_id);
-    if (!url || !f.eventi) return null;
-    return { url, titolo: f.eventi.titolo, slug: f.eventi.slug };
+    if (!url || !f.eventi_id) return null;
+    return { url, titolo: f.eventi_id.titolo, slug: f.eventi_id.slug };
   })
   .filter((x): x is { url: string; titolo: string; slug: string } => x !== null);
 
