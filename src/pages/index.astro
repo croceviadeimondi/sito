@@ -7,7 +7,7 @@ import type { Evento, Progetto } from '../lib/types';
 
 const adesso = new Date().toISOString();
 
-const [prossimiEventi, progettiVetrina, heroEventi] = await Promise.all([
+const [prossimiEventi, progettiVetrina, heroEventi, eventiConGallery] = await Promise.all([
   fetchCollection<Evento>('eventi', {
     filter: { data_inizio: { _gte: adesso } },
     sort: 'data_inizio',
@@ -22,7 +22,20 @@ const [prossimiEventi, progettiVetrina, heroEventi] = await Promise.all([
     sort: '-data_inizio',
     limit: 6,
   }),
+  fetchCollection<Evento>('eventi', {
+    fields: 'id,titolo,slug,gallery.directus_files_id',
+    sort: '-data_inizio',
+    limit: 12,
+  }),
 ]);
+
+// Flatten foto dalle gallery in un'unica sequenza per il carosello
+const fotoGallery = eventiConGallery.flatMap((e) =>
+  (e.gallery ?? [])
+    .map((g) => g.directus_files_id)
+    .filter((id): id is string => !!id)
+    .map((id) => ({ url: assetUrl(id)!, titolo: e.titolo, slug: e.slug })),
+);
 
 const formattatoreDataBreve = new Intl.DateTimeFormat('it-IT', {
   day: 'numeric',
@@ -65,9 +78,24 @@ const formattatoreDataBreve = new Intl.DateTimeFormat('it-IT', {
     <div class="container hero__azioni-wrap">
       <div class="hero__azioni">
         <a class="bottone" href="/attivita/">Scopri le nostre attività</a>
-        <a class="bottone bottone--ghost" href="/sostienici/">Sostienici</a>
       </div>
     </div>
+
+    {fotoGallery.length > 0 && (
+      <ul role="list" class="hero__foto-carosello">
+        {fotoGallery.map((f) => (
+          <li>
+            <a href={`/eventi/${f.slug}/`} class="hero__foto-item">
+              <img
+                src={`${f.url}?width=640&height=640&fit=cover&format=jpg&quality=80`}
+                alt={f.titolo}
+                loading="lazy"
+              />
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
   </section>
 
   <section class="section">
@@ -207,9 +235,53 @@ const formattatoreDataBreve = new Intl.DateTimeFormat('it-IT', {
     gap: var(--space-4);
   }
 
+  /* Secondo carosello: foto dalle gallery degli eventi (quadrate, scorrono sotto i CTA) */
+  .hero__foto-carosello {
+    list-style: none;
+    margin: var(--space-8) 0 0;
+    padding: 0 var(--gutter);
+    display: flex;
+    gap: var(--space-3);
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-accent) transparent;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .hero__foto-carosello::-webkit-scrollbar { height: 6px; }
+  .hero__foto-carosello::-webkit-scrollbar-thumb {
+    background: var(--color-accent);
+    border-radius: var(--radius-pill);
+  }
+
+  .hero__foto-item {
+    flex: 0 0 auto;
+    display: block;
+    width: 220px;
+    aspect-ratio: 1;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: color-mix(in srgb, var(--cdm-petrol) 10%, transparent);
+    scroll-snap-align: start;
+    transition: transform 200ms ease;
+  }
+
+  .hero__foto-item:hover {
+    transform: scale(1.02);
+  }
+
+  .hero__foto-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
   @media (max-width: 640px) {
     .hero__nome { font-size: var(--text-xl); }
     .hero__slot { width: 84vw; }
+    .hero__foto-item { width: 160px; }
   }
 
   .section--alt {

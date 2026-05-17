@@ -72,6 +72,8 @@ export interface Evento {
   sede: string | null;
   progetto_collegato: string | null;
   mostra_nella_home: boolean;
+  /** Solo presente quando si chiede fields=...,gallery.directus_files_id */
+  gallery?: { directus_files_id: string | null }[] | null;
 }
 
 export type TipoMediaEsterno = 'articolo' | 'video' | 'podcast' | (string & {});
