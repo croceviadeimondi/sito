@@ -61,12 +61,12 @@ export interface Evento {
 }
 
 export interface Attivita {
-  id: string;
+  UUID: string;
   status: Status;
   sort: number | null;
-  nome: string;
+  nome: string | null;
   nome_html: string | null;
-  descrizione_breve: string;
+  descrizione_breve: string | null;
 }
 
 export interface Sede {
