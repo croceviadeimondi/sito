@@ -1,0 +1,115 @@
+---
+import Layout from '../layouts/Layout.astro';
+import IntestazionePagina from '../components/IntestazionePagina.astro';
+import { fetchSingleton } from '../lib/directus';
+import type { Impostazioni } from '../lib/types';
+
+const impostazioni = await fetchSingleton<Impostazioni>('impostazioni');
+const denominazione = impostazioni?.denominazione_completa ?? 'Crocevia dei Mondi APS';
+const emailPubblica = impostazioni?.email_principale ?? null;
+---
+
+<Layout
+  titolo="Tesserati"
+  descrizione="Modulo di tesseramento al Crocevia dei Mondi APS."
+>
+  <IntestazionePagina
+    titolo="Tesserati"
+    occhiello="Diventa socio"
+    sommario="Compila il modulo qui sotto per chiedere il tesseramento. Ti contatteremo via email per confermare l'iscrizione e per i passaggi successivi."
+  />
+
+  <section class="section">
+    <div class="container container-narrow">
+      <div class="iframe-wrap">
+        <iframe
+          src="https://docs.google.com/forms/d/e/1FAIpQLSdzKZP_GL3QofCy6Ipe1NLSnhxdAO4US9CvdihZ1a-9FL3Zdw/viewform?embedded=true"
+          title="Modulo di tesseramento Crocevia dei Mondi"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        >Caricamento del modulo…</iframe>
+      </div>
+
+      <section class="privacy">
+        <h2>Trattamento dei dati personali</h2>
+        <p>
+          I dati che inserisci nel modulo qui sopra vengono raccolti da
+          <strong>{denominazione}</strong> (Titolare del trattamento) e sono
+          ospitati su Google Forms / Google Workspace (responsabile esterno,
+          con sede negli Stati Uniti — trasferimento coperto da Standard
+          Contractual Clauses dell'UE).
+        </p>
+        <p>
+          <strong>Finalità.</strong> Gestire la tua richiesta di tesseramento,
+          mantenere l'elenco dei soci come previsto dallo statuto e dalla
+          normativa sul Terzo Settore, comunicarti convocazioni assembleari
+          e informazioni sulle attività dell'associazione.
+        </p>
+        <p>
+          <strong>Base giuridica.</strong> Esecuzione del rapporto associativo
+          (art. 6, c.1, lett. b GDPR) e obblighi di legge sugli enti del Terzo
+          Settore (art. 6, c.1, lett. c GDPR).
+        </p>
+        <p>
+          <strong>Conservazione.</strong> I dati sono conservati per la durata
+          dell'iscrizione e per i 10 anni successivi alla cessazione,
+          come previsto per le scritture contabili di un ETS.
+        </p>
+        <p>
+          <strong>I tuoi diritti.</strong> Puoi sempre chiedere accesso,
+          rettifica, cancellazione o limitazione dei tuoi dati scrivendo a
+          {emailPubblica ? (
+            <a href={`mailto:${emailPubblica}`}>{emailPubblica}</a>
+          ) : (
+            <span>info@croceviadeimondi.org</span>
+          )}.
+        </p>
+        <p class="nota">
+          Inviando il modulo dichiari di aver letto questa informativa e di
+          acconsentire al trattamento dei dati per le finalità sopra indicate.
+        </p>
+      </section>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .iframe-wrap {
+    width: 100%;
+    margin-bottom: var(--space-16);
+  }
+
+  .iframe-wrap iframe {
+    display: block;
+    width: 100%;
+    height: 3293px;
+    max-width: 640px;
+    margin-inline: auto;
+    border: 0;
+    background: var(--color-bg);
+  }
+
+  .privacy {
+    border-top: 1px solid var(--color-border);
+    padding-top: var(--space-8);
+  }
+
+  .privacy h2 {
+    margin: 0 0 var(--space-4);
+    font-size: var(--text-2xl);
+  }
+
+  .privacy p {
+    margin-block: var(--space-3);
+  }
+
+  .privacy a {
+    color: var(--color-accent);
+  }
+
+  .privacy .nota {
+    color: var(--color-text-muted);
+    font-style: italic;
+    margin-top: var(--space-6);
+  }
+</style>
