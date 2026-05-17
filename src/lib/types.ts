@@ -170,3 +170,19 @@ export interface Progetto {
   bando_finanziatore: string | null;
   importo_finanziato: number | null;
 }
+
+/**
+ * Immagine editoriale/decorativa del sito, gestita da Directus.
+ * `chiave` è il contratto stabile col codice (vedi src/lib/immagini.ts):
+ * l'admin sostituisce solo il file e l'alt, mai la chiave.
+ */
+export interface ImmagineSito {
+  id: string;
+  status: Status;
+  sort: number | null;
+  chiave: string;
+  pagina: string | null;
+  etichetta: string | null;
+  immagine: string | null;
+  alt: string | null;
+}

@@ -20,7 +20,7 @@ const href = slugAtt ? `/attivita/${slugAtt}/` : `/eventi/${evento.slug}/`;
 <a href={href} class="card-evento">
   {urlImmagine && (
     <div class="card-evento__media">
-      <img src={urlImmagine} alt="" loading="lazy" />
+      <img src={urlImmagine} alt={`Locandina di ${evento.titolo}`} loading="lazy" />
     </div>
   )}
   <div class="card-evento__corpo">

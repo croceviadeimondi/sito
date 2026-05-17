@@ -1,0 +1,189 @@
+---
+import Layout from '../layouts/Layout.astro';
+import IntestazionePagina from '../components/IntestazionePagina.astro';
+import { fetchSingleton, fetchCollection } from '../lib/directus';
+import type { Impostazioni, Sede } from '../lib/types';
+
+const [impostazioni, sediLegali] = await Promise.all([
+  fetchSingleton<Impostazioni>('impostazioni'),
+  fetchCollection<Sede>('sedi', {
+    fields: 'id,is_sede_legale,citta,indirizzo_completo',
+    filter: { is_sede_legale: { _eq: true } },
+    limit: 1,
+  }),
+]);
+
+const sedeLegale = sediLegali[0] ?? null;
+const denominazione = impostazioni?.denominazione_completa ?? 'Crocevia dei Mondi APS';
+const email = impostazioni?.email_principale ?? 'info@croceviadeimondi.org';
+const indirizzoSede = sedeLegale?.indirizzo_completo ?? null;
+const cittaSede = sedeLegale?.citta ?? null;
+
+// Data dell'ultima revisione di questa informativa. Aggiornare quando cambia.
+const ultimoAggiornamento = '17 maggio 2026';
+---
+
+<Layout
+  titolo="Privacy & cookie"
+  descrizione="Informativa sul trattamento dei dati personali e sull'uso dei cookie del sito del Crocevia dei Mondi APS."
+>
+  <IntestazionePagina
+    titolo="Privacy & cookie"
+    occhiello="Trattamento dati"
+    sommario="Come questo sito tratta i dati personali e quali contenuti di terze parti incontri navigandolo."
+  />
+
+  <section class="section">
+    <div class="container container-narrow">
+
+      <p class="intro">
+        Questa informativa è resa ai sensi del Regolamento UE 2016/679 (GDPR)
+        a chi visita il sito <strong>croceviadeimondi.org</strong>. Riguarda
+        il sito nel suo complesso; per il modulo di tesseramento vale
+        l'informativa specifica indicata più sotto.
+      </p>
+
+      <h2>Titolare del trattamento</h2>
+      <p>
+        Il titolare del trattamento è <strong>{denominazione}</strong>
+        {indirizzoSede && (
+          <>, con sede legale in {indirizzoSede}{cittaSede && ` (${cittaSede})`}</>
+        )}.
+        Per qualsiasi richiesta relativa ai tuoi dati puoi scrivere a
+        <a href={`mailto:${email}`}>{email}</a>.
+      </p>
+
+      <h2>Quali dati raccoglie questo sito</h2>
+      <p>
+        croceviadeimondi.org è un <strong>sito statico</strong>: non ospita
+        un'area riservata, non richiede registrazione e non utilizza
+        strumenti di analisi statistica o di profilazione degli utenti.
+      </p>
+      <p>
+        <strong>Log del server.</strong> Come ogni sito web, il server che
+        ospita queste pagine registra automaticamente alcuni dati tecnici
+        (indirizzo IP, data e ora della richiesta, pagina richiesta, tipo di
+        browser e sistema operativo). Questi dati servono solo a garantire il
+        funzionamento e la sicurezza del sito e a diagnosticare eventuali
+        malfunzionamenti; non vengono usati per identificare le persone.
+        Base giuridica: legittimo interesse del titolare (art. 6, c.1, lett. f
+        GDPR). I log sono conservati per un periodo limitato e poi cancellati.
+      </p>
+
+      <h2>Contenuti di terze parti incorporati</h2>
+      <p>
+        Alcune pagine includono contenuti caricati da servizi esterni:
+      </p>
+      <ul>
+        <li>
+          <strong>Tesseramento</strong> (<a href="/tesserati/">/tesserati/</a>):
+          un modulo Google Moduli incorporato.
+        </li>
+        <li>
+          <strong>Sedi</strong> (<a href="/sedi/">/sedi/</a>): mappe di
+          Google Maps incorporate.
+        </li>
+      </ul>
+      <p>
+        Quando apri queste pagine il tuo browser si collega ai server di
+        Google (Google Ireland Ltd.), che in qualità di autonomo titolare
+        può raccogliere dati di navigazione, incluso l'indirizzo IP, e
+        impostare cookie propri secondo la propria informativa privacy. Si
+        tratta di un trattamento non controllato dall'associazione; l'eventuale
+        trasferimento di dati fuori dall'Unione Europea è regolato dalle
+        clausole contrattuali standard adottate da Google.
+      </p>
+
+      <h2>Modulo di tesseramento</h2>
+      <p>
+        I dati che inserisci nel modulo della pagina
+        <a href="/tesserati/">Tesseramento</a> sono trattati per gestire la
+        tua richiesta di iscrizione come socio. Finalità, base giuridica,
+        tempi di conservazione e diritti sono descritti nell'informativa
+        specifica pubblicata sulla stessa pagina, accanto al modulo.
+      </p>
+
+      <h2>Se ci scrivi</h2>
+      <p>
+        Se ci contatti via email o tramite i nostri canali social, i dati che
+        ci comunichi (indirizzo, contenuto del messaggio) vengono trattati al
+        solo scopo di rispondere alla tua richiesta e gestire la relazione che
+        ne deriva, e conservati per il tempo necessario a tale scopo.
+      </p>
+
+      <h2>Cookie</h2>
+      <p>
+        Questo sito <strong>non installa cookie tecnici né di profilazione
+        propri</strong> e non usa cookie per finalità statistiche o
+        pubblicitarie. Gli unici cookie eventualmente presenti sono quelli di
+        terze parti impostati dai contenuti incorporati di Google, e
+        unicamente quando visiti le pagine
+        <a href="/tesserati/">Tesseramento</a> e <a href="/sedi/">Sedi</a>.
+        Puoi gestire o bloccare i cookie in qualsiasi momento dalle
+        impostazioni del tuo browser.
+      </p>
+
+      <h2>I tuoi diritti</h2>
+      <p>
+        In relazione ai dati che ti riguardano puoi esercitare, nei limiti
+        previsti dal GDPR, il diritto di accesso, rettifica, cancellazione,
+        limitazione e opposizione al trattamento, oltre al diritto alla
+        portabilità dei dati (artt. 15-22 GDPR).
+      </p>
+
+      <h2>Come esercitare i diritti e reclami</h2>
+      <p>
+        Per esercitare i tuoi diritti scrivi a
+        <a href={`mailto:${email}`}>{email}</a>. Hai inoltre il diritto di
+        proporre reclamo all'autorità di controllo, il Garante per la
+        protezione dei dati personali
+        (<a href="https://www.garanteprivacy.it" rel="noopener" target="_blank">garanteprivacy.it</a>),
+        se ritieni che il trattamento dei tuoi dati violi la normativa.
+      </p>
+
+      <h2>Modifiche a questa informativa</h2>
+      <p>
+        L'associazione può aggiornare questa informativa per adeguarla a
+        cambiamenti normativi o al funzionamento del sito. La versione
+        pubblicata su questa pagina è sempre quella in vigore.
+      </p>
+      <p class="nota">Ultimo aggiornamento: {ultimoAggiornamento}.</p>
+
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .intro {
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-8);
+  }
+
+  h2 {
+    margin-top: var(--space-10);
+    margin-bottom: var(--space-3);
+    font-size: var(--text-2xl);
+  }
+
+  p {
+    margin-block: var(--space-3);
+  }
+
+  ul {
+    margin-block: var(--space-3);
+    padding-left: var(--space-6);
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  a {
+    color: var(--color-accent);
+  }
+
+  .nota {
+    margin-top: var(--space-8);
+    color: var(--color-text-muted);
+    font-style: italic;
+    font-size: var(--text-sm);
+  }
+</style>

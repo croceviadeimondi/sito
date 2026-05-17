@@ -1,0 +1,60 @@
+---
+import Layout from '../layouts/Layout.astro';
+import IntestazionePagina from '../components/IntestazionePagina.astro';
+---
+
+<Layout
+  titolo="Partner e collaborazioni"
+  descrizione="Le realtà con cui il Crocevia dei Mondi APS collabora sul territorio."
+>
+  <IntestazionePagina
+    titolo="Partner e collaborazioni"
+    occhiello="Insieme"
+    sommario="Crescere come comunità significa farlo con altri. Le collaborazioni che intrecciamo sul territorio troveranno spazio qui."
+  />
+
+  <section class="section">
+    <div class="container container-narrow">
+      <div class="placeholder">
+        <p class="placeholder__testo">
+          Stiamo mettendo in ordine le realtà con cui collaboriamo:
+          associazioni, scuole, enti e spazi che condividono il nostro modo
+          di fare comunità. Questa pagina sarà presto online.
+        </p>
+        <a class="placeholder__cta" href="/contatti/">
+          Vuoi collaborare con noi? Scrivici →
+        </a>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .placeholder {
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-12) var(--space-8);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    align-items: center;
+  }
+
+  .placeholder__testo {
+    color: var(--color-text-muted);
+    font-size: var(--text-lg);
+    max-width: 52ch;
+    margin: 0;
+  }
+
+  .placeholder__cta {
+    color: var(--color-accent);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .placeholder__cta:hover {
+    text-decoration: underline;
+  }
+</style>

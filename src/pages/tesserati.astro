@@ -7,6 +7,10 @@ import type { Impostazioni } from '../lib/types';
 const impostazioni = await fetchSingleton<Impostazioni>('impostazioni');
 const denominazione = impostazioni?.denominazione_completa ?? 'Crocevia dei Mondi APS';
 const emailPubblica = impostazioni?.email_principale ?? null;
+
+// ID del modulo Google in un punto solo: se cambia, si aggiorna qui.
+const formId = '1FAIpQLSdzKZP_GL3QofCy6Ipe1NLSnhxdAO4US9CvdihZ1a-9FL3Zdw';
+const formUrl = `https://docs.google.com/forms/d/e/${formId}/viewform`;
 ---
 
 <Layout
@@ -23,11 +27,16 @@ const emailPubblica = impostazioni?.email_principale ?? null;
     <div class="container container-narrow">
       <div class="iframe-wrap">
         <iframe
-          src="https://docs.google.com/forms/d/e/1FAIpQLSdzKZP_GL3QofCy6Ipe1NLSnhxdAO4US9CvdihZ1a-9FL3Zdw/viewform?embedded=true"
+          src={`${formUrl}?embedded=true`}
           title="Modulo di tesseramento Crocevia dei Mondi"
           loading="lazy"
           referrerpolicy="no-referrer-when-downgrade"
         >Caricamento del modulo…</iframe>
+        <p class="form-fallback">
+          Il modulo non si carica? Puoi
+          <a href={formUrl} rel="noopener" target="_blank">aprirlo
+          direttamente su Google Moduli</a> in una nuova scheda.
+        </p>
       </div>
 
       <section class="privacy">
@@ -87,6 +96,18 @@ const emailPubblica = impostazioni?.email_principale ?? null;
     margin-inline: auto;
     border: 0;
     background: var(--color-bg);
+  }
+
+  .form-fallback {
+    max-width: 640px;
+    margin: var(--space-4) auto 0;
+    text-align: center;
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .form-fallback a {
+    color: var(--color-accent);
   }
 
   .privacy {

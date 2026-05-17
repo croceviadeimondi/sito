@@ -2,10 +2,11 @@
 import Layout from '../layouts/Layout.astro';
 import IntestazionePagina from '../components/IntestazionePagina.astro';
 import { fetchCollection, assetUrl } from '../lib/directus';
+import { immagine, SLOT } from '../lib/immagini';
 import { formattaData } from '../lib/formato';
 import type { MediaEsterno, DirettivoMembro } from '../lib/types';
 
-const [mediaRecenti, direttivo] = await Promise.all([
+const [mediaRecenti, direttivo, heroFoto] = await Promise.all([
   fetchCollection<MediaEsterno>('media_esterni', {
     pubblicato: false,
     filter: { add_to_parlano_di_noi: { _eq: true } },
@@ -14,6 +15,10 @@ const [mediaRecenti, direttivo] = await Promise.all([
   }),
   fetchCollection<DirettivoMembro>('direttivo_membri', {
     sort: 'sort,id',
+  }),
+  immagine(SLOT.chiSiamoHero, {
+    src: '/immagini/questisiamonoi.jpg',
+    alt: "Foto di gruppo dei membri del direttivo del Crocevia all'apertura della sede a Trani, da sinistra: Giuseppe, Martina, Gloria, Enrico, Antonino, Eleonora, Elisa, Paola, Rico.",
   }),
 ]);
 
@@ -49,13 +54,11 @@ function etichettaTipo(tipo: string): string {
   <section class="section">
     <div class="container container-narrow">
 
-      <figure class="hero-foto">
-        <img
-          src="/immagini/questisiamonoi.jpg"
-          alt="Foto di gruppo dei membri del direttivo del Crocevia all'apertura della sede a Trani, da sinistra: Giuseppe, Martina, Gloria, Enrico, Antonino, Eleonora, Elisa, Paola, Rico."
-          loading="eager"
-        />
-      </figure>
+      {heroFoto && (
+        <figure class="hero-foto">
+          <img src={heroFoto.src} alt={heroFoto.alt} loading="eager" />
+        </figure>
+      )}
 
       <p class="intro">
         Il Crocevia dei Mondi è una <strong>comunità di persone che costruisce

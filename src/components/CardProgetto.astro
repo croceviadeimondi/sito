@@ -29,7 +29,7 @@ if (annoInizio && annoFine) {
 <a href={`/progetti/${progetto.slug}/`} class="card-progetto">
   {urlImmagine && (
     <div class="card-progetto__media">
-      <img src={urlImmagine} alt="" loading="lazy" />
+      <img src={urlImmagine} alt={`Immagine del progetto ${progetto.titolo}`} loading="lazy" />
     </div>
   )}
   <div class="card-progetto__corpo">
