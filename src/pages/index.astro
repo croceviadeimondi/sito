@@ -177,7 +177,6 @@ const fotoGallery = fotoCarosello
      Click sulla slide -> dettaglio del singolo evento. */
   .banner-attivita {
     position: relative;
-    margin-top: var(--space-8);
   }
 
   .banner-attivita__lista {
@@ -235,12 +234,12 @@ const fotoGallery = fotoCarosello
     );
   }
 
-  /* Pallini di navigazione */
+  /* Pallini di navigazione (top center) */
   .banner-attivita__dots {
     position: absolute;
+    top: var(--space-4);
     left: 0;
     right: 0;
-    bottom: var(--space-4);
     display: flex;
     justify-content: center;
     gap: var(--space-2);
