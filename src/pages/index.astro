@@ -14,7 +14,10 @@ const adesso = new Date().toISOString();
 
 const [prossimiEventi, progettiVetrina, fotoCarosello, attivitaTutte] = await Promise.all([
   fetchCollection<Evento>('eventi', {
-    filter: { data_inizio: { _gte: adesso } },
+    filter: {
+      data_inizio: { _gte: adesso },
+      attivita_collegata: { _null: true },
+    },
     sort: 'data_inizio',
     limit: 3,
   }),
@@ -54,7 +57,11 @@ const fotoGallery = fotoCarosello
   headerGrande
 >
     {fotoGallery.length > 0 && (
-      <section class="banner-attivita" aria-label="Scopri le nostre attività">
+      <section class="banner-attivita" aria-label="In evidenza">
+        <a href="/attivita/" class="banner-attivita__cta">
+          Scopri le nostre attività
+          <span class="banner-attivita__freccia" aria-hidden="true">→</span>
+        </a>
         <ul role="list" class="banner-attivita__lista">
           {fotoGallery.map((f) => (
             <li class="banner-attivita__slide">
@@ -65,7 +72,6 @@ const fotoGallery = fotoCarosello
                   loading="lazy"
                 />
                 <div class="banner-attivita__overlay">
-                  <p class="banner-attivita__cta">Scopri le nostre attività</p>
                   <h2 class="banner-attivita__nome">{f.titolo}</h2>
                 </div>
               </a>
@@ -262,12 +268,32 @@ const fotoGallery = fotoCarosello
   }
 
   .banner-attivita__cta {
-    margin: 0 0 var(--space-2);
+    position: absolute;
+    top: var(--space-4);
+    right: var(--gutter);
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-5);
+    background: var(--color-accent);
+    color: var(--color-on-dark);
+    border-radius: var(--radius-pill);
+    text-decoration: none;
+    font-weight: 600;
     font-size: var(--text-sm);
-    text-transform: uppercase;
-    letter-spacing: 0.16em;
-    font-weight: 700;
-    color: var(--cdm-orange-light);
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--cdm-petrol) 25%, transparent);
+    transition: background 150ms ease, transform 150ms ease;
+  }
+
+  .banner-attivita__cta:hover {
+    background: var(--color-accent-hover);
+    transform: translateY(-1px);
+  }
+
+  .banner-attivita__freccia {
+    font-size: var(--text-base);
+    line-height: 1;
   }
 
   .banner-attivita__nome {
