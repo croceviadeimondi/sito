@@ -2,6 +2,8 @@
 import '../styles/global.css';
 import HeaderMain from '../components/HeaderMain.astro';
 import FooterMain from '../components/FooterMain.astro';
+import { fetchSingleton, assetUrl } from '../lib/directus';
+import type { Impostazioni } from '../lib/types';
 
 interface Props {
   titolo?: string;
@@ -25,6 +27,14 @@ const canonical = new URL(
   Astro.url.pathname,
   Astro.site ?? 'https://croceviadeimondi.org'
 ).toString();
+
+const impostazioni = await fetchSingleton<Impostazioni>('impostazioni');
+const faviconBase = assetUrl(impostazioni?.favicon);
+// Directus serve thumbnail su richiesta: 192px è abbastanza per tabs,
+// home screen iOS, e Android maskable.
+const faviconUrl = faviconBase
+  ? `${faviconBase}?width=192&height=192&fit=cover&format=png&quality=85`
+  : null;
 ---
 
 <!doctype html>
@@ -37,8 +47,17 @@ const canonical = new URL(
     <meta name="description" content={descrizione} />
     <link rel="canonical" href={canonical} />
 
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
+    {faviconUrl ? (
+      <>
+        <link rel="icon" type="image/png" href={faviconUrl} />
+        <link rel="apple-touch-icon" href={faviconUrl} />
+      </>
+    ) : (
+      <>
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="icon" href="/favicon.ico" />
+      </>
+    )}
 
     <meta property="og:title" content={titoloCompleto} />
     <meta property="og:description" content={descrizione} />
