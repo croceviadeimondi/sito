@@ -49,6 +49,14 @@ function etichettaTipo(tipo: string): string {
   <section class="section">
     <div class="container container-narrow">
 
+      <figure class="hero-foto">
+        <img
+          src="/immagini/questisiamonoi.jpg"
+          alt="La comunità del Crocevia dei Mondi insieme"
+          loading="eager"
+        />
+      </figure>
+
       <p class="intro">
         Il Crocevia dei Mondi è una <strong>comunità di persone che costruisce
         insieme</strong>. Crediamo che il potere creativo vive nelle relazioni
@@ -212,6 +220,18 @@ function etichettaTipo(tipo: string): string {
 </Layout>
 
 <style>
+  .hero-foto {
+    margin: 0 0 var(--space-8);
+  }
+
+  .hero-foto img {
+    display: block;
+    width: 100%;
+    max-height: 480px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+  }
+
   .intro {
     font-size: var(--text-lg);
     line-height: 1.7;
