@@ -220,6 +220,12 @@ function etichettaTipo(tipo: string): string {
 </Layout>
 
 <style>
+  /* La prima section è subito sotto il pannello scuro dell'intestazione:
+     ridotto il padding-top di default cosi' la foto sale verso l'header. */
+  .section:first-of-type {
+    padding-block-start: var(--space-4);
+  }
+
   .hero-foto {
     margin: 0 0 var(--space-8);
   }
