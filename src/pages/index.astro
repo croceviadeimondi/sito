@@ -5,9 +5,14 @@ import CardProgetto from '../components/CardProgetto.astro';
 import { fetchCollection, assetUrl } from '../lib/directus';
 import type { Evento, Progetto } from '../lib/types';
 
+interface FotoCaroselloItem {
+  directus_files_id: string;
+  eventi: { titolo: string; slug: string } | null;
+}
+
 const adesso = new Date().toISOString();
 
-const [prossimiEventi, progettiVetrina, heroEventi, eventiConGallery] = await Promise.all([
+const [prossimiEventi, progettiVetrina, heroEventi, fotoCarosello] = await Promise.all([
   fetchCollection<Evento>('eventi', {
     filter: { data_inizio: { _gte: adesso } },
     sort: 'data_inizio',
@@ -22,20 +27,24 @@ const [prossimiEventi, progettiVetrina, heroEventi, eventiConGallery] = await Pr
     sort: '-data_inizio',
     limit: 6,
   }),
-  fetchCollection<Evento>('eventi', {
-    fields: 'id,titolo,slug,gallery.directus_files_id',
-    sort: '-data_inizio',
-    limit: 12,
+  // Carosello home: solo foto della gallery flaggate `in_carosello_home`
+  // sulla junction eventi_files. Espandiamo l'evento parent per ricavare
+  // titolo (alt) e slug (link al dettaglio).
+  fetchCollection<FotoCaroselloItem>('eventi_files', {
+    fields: 'directus_files_id,eventi.titolo,eventi.slug',
+    filter: { in_carosello_home: { _eq: true } },
+    pubblicato: false,
+    limit: 24,
   }),
 ]);
 
-// Flatten foto dalle gallery in un'unica sequenza per il carosello
-const fotoGallery = eventiConGallery.flatMap((e) =>
-  (e.gallery ?? [])
-    .map((g) => g.directus_files_id)
-    .filter((id): id is string => !!id)
-    .map((id) => ({ url: assetUrl(id)!, titolo: e.titolo, slug: e.slug })),
-);
+const fotoGallery = fotoCarosello
+  .map((f) => {
+    const url = assetUrl(f.directus_files_id);
+    if (!url || !f.eventi) return null;
+    return { url, titolo: f.eventi.titolo, slug: f.eventi.slug };
+  })
+  .filter((x): x is { url: string; titolo: string; slug: string } => x !== null);
 
 const formattatoreDataBreve = new Intl.DateTimeFormat('it-IT', {
   day: 'numeric',

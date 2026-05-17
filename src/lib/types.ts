@@ -73,7 +73,15 @@ export interface Evento {
   progetto_collegato: string | null;
   mostra_nella_home: boolean;
   /** Solo presente quando si chiede fields=...,gallery.directus_files_id */
-  gallery?: { directus_files_id: string | null }[] | null;
+  gallery?: { directus_files_id: string | null; in_carosello_home?: boolean }[] | null;
+}
+
+/** Junction eventi_files: ogni foto ha un flag per il carosello home */
+export interface EventoFile {
+  id: number;
+  eventi_id: string;
+  directus_files_id: string | null;
+  in_carosello_home: boolean;
 }
 
 export type TipoMediaEsterno = 'articolo' | 'video' | 'podcast' | (string & {});
