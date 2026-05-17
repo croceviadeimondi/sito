@@ -6,6 +6,8 @@ import { formattaData } from '../lib/formato';
 import type { MediaEsterno } from '../lib/types';
 
 const mediaRecenti = await fetchCollection<MediaEsterno>('media_esterni', {
+  pubblicato: false,
+  filter: { add_to_parlano_di_noi: { _eq: true } },
   sort: '-data,-id',
   limit: 3,
 });

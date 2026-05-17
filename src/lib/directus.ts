@@ -13,6 +13,8 @@ export interface FetchOptions {
   filter?: Record<string, unknown>;
   sort?: string;
   limit?: number;
+  /** Se false, NON aggiunge il filtro status=published (per collection senza status). Default true. */
+  pubblicato?: boolean;
 }
 
 function appendFiltro(params: URLSearchParams, chiave: string, valore: unknown): void {
@@ -44,7 +46,8 @@ export async function fetchCollection<T>(
   collection: string,
   opts: FetchOptions = {}
 ): Promise<T[]> {
-  const url = `${DIRECTUS_URL}/items/${collection}${buildQuery(opts, true)}`;
+  const filtroPubblicato = opts.pubblicato !== false;
+  const url = `${DIRECTUS_URL}/items/${collection}${buildQuery(opts, filtroPubblicato)}`;
   try {
     const res = await fetch(url);
     if (!res.ok) {
