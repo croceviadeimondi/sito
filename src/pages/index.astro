@@ -160,8 +160,25 @@ const fotoGallery = fotoCarosello
       );
       slides.forEach((s) => io.observe(s));
 
+      // Animazione custom per controllare la durata (il browser di default
+      // è troppo veloce con behavior:'smooth')
+      const DURATA_SCORRIMENTO = 900;
+      let animFrame: number | null = null;
       const vaiA = (idx: number) => {
-        lista.scrollTo({ left: slides[idx].offsetLeft, behavior: 'smooth' });
+        const target = slides[idx].offsetLeft;
+        const partenza = lista.scrollLeft;
+        const distanza = target - partenza;
+        if (Math.abs(distanza) < 1) return;
+        if (animFrame !== null) cancelAnimationFrame(animFrame);
+        const t0 = performance.now();
+        const step = (now: number) => {
+          const t = Math.min(1, (now - t0) / DURATA_SCORRIMENTO);
+          const ease = 1 - Math.pow(1 - t, 3); // ease-out cubic
+          lista.scrollLeft = partenza + distanza * ease;
+          if (t < 1) animFrame = requestAnimationFrame(step);
+          else animFrame = null;
+        };
+        animFrame = requestAnimationFrame(step);
       };
 
       dots.forEach((dot, i) => {
@@ -177,8 +194,8 @@ const fotoGallery = fotoCarosello
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
       let intervalId: number | null = null;
       let timeoutRipresa: number | null = null;
-      const INTERVALLO = 6000;
-      const RIPRESA_DOPO = 12000;
+      const INTERVALLO = 8000;
+      const RIPRESA_DOPO = 14000;
 
       const start = () => {
         if (slides.length < 2 || reduceMotion.matches) return;
@@ -316,12 +333,15 @@ const fotoGallery = fotoCarosello
     left: var(--gutter);
     z-index: 2;
     margin: 0;
+    padding: var(--space-2) var(--space-4);
+    background: var(--color-accent);
+    color: var(--color-on-dark);
+    border-radius: var(--radius-pill);
     font-size: var(--text-sm);
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.16em;
-    color: var(--cdm-orange-light);
-    text-shadow: 0 2px 6px color-mix(in srgb, var(--cdm-petrol) 50%, transparent);
+    letter-spacing: 0.12em;
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--cdm-petrol) 25%, transparent);
   }
 
   .banner-attivita__nome {
