@@ -5,13 +5,19 @@ import type { Evento } from '../lib/types';
 
 interface Props {
   evento: Evento;
+  /** Mappa UUID attività -> slug per il routing degli eventi ricorrenti */
+  slugAttivita?: Record<string, string>;
 }
 
-const { evento } = Astro.props;
+const { evento, slugAttivita = {} } = Astro.props;
 const urlImmagine = assetUrl(evento.locandina);
+const slugAtt = evento.attivita_collegata
+  ? slugAttivita[evento.attivita_collegata]
+  : null;
+const href = slugAtt ? `/attivita/${slugAtt}/` : `/eventi/${evento.slug}/`;
 ---
 
-<a href={`/eventi/${evento.slug}/`} class="card-evento">
+<a href={href} class="card-evento">
   {urlImmagine && (
     <div class="card-evento__media">
       <img src={urlImmagine} alt="" loading="lazy" />

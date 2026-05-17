@@ -3,7 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import CardEvento from '../components/CardEvento.astro';
 import CardProgetto from '../components/CardProgetto.astro';
 import { fetchCollection, assetUrl } from '../lib/directus';
-import type { Evento, Progetto } from '../lib/types';
+import type { Evento, Progetto, Attivita } from '../lib/types';
 
 interface FotoCaroselloItem {
   directus_files_id: string | null;
@@ -12,7 +12,7 @@ interface FotoCaroselloItem {
 
 const adesso = new Date().toISOString();
 
-const [prossimiEventi, progettiVetrina, heroEventi, fotoCarosello] = await Promise.all([
+const [prossimiEventi, progettiVetrina, heroEventi, fotoCarosello, attivitaTutte] = await Promise.all([
   fetchCollection<Evento>('eventi', {
     filter: { data_inizio: { _gte: adesso } },
     sort: 'data_inizio',
@@ -36,7 +36,13 @@ const [prossimiEventi, progettiVetrina, heroEventi, fotoCarosello] = await Promi
     pubblicato: false,
     limit: 24,
   }),
+  fetchCollection<Attivita>('attivita', { fields: 'UUID,slug', sort: 'sort' }),
 ]);
+
+const slugAttivita: Record<string, string> = {};
+for (const a of attivitaTutte) {
+  if (a.UUID && a.slug) slugAttivita[a.UUID] = a.slug;
+}
 
 const fotoGallery = fotoCarosello
   .map((f) => {
@@ -121,7 +127,7 @@ const formattatoreDataBreve = new Intl.DateTimeFormat('it-IT', {
       ) : (
         <ul role="list" class="griglia-card">
           {prossimiEventi.map((evento) => (
-            <li><CardEvento evento={evento} /></li>
+            <li><CardEvento evento={evento} slugAttivita={slugAttivita} /></li>
           ))}
         </ul>
       )}

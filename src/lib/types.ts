@@ -71,6 +71,7 @@ export interface Evento {
   link_prenotazione: string | null;
   sede: string | null;
   progetto_collegato: string | null;
+  attivita_collegata: string | null;
   mostra_nella_home: boolean;
   /** Solo presente quando si chiede fields=...,gallery.directus_files_id */
   gallery?: { directus_files_id: string | null; in_carosello_home?: boolean }[] | null;
@@ -105,7 +106,9 @@ export interface Attivita {
   sort: number | null;
   nome: string | null;
   nome_html: string | null;
+  slug: string | null;
   descrizione_breve: string | null;
+  cadenza: string | null;
 }
 
 export interface DirettivoMembro {

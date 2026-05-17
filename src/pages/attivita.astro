@@ -24,16 +24,26 @@ const attivita = await fetchCollection<Attivita>('attivita', { sort: 'sort' });
             Stiamo mettendo in ordine le aree: torneranno qui a breve.
           </p>
         ) : (
-          attivita.map((a) => (
-            <article class="ambito">
-              {a.nome_html ? (
-                <h2 class="ambito__nome" set:html={a.nome_html} />
-              ) : (
-                <h2 class="ambito__nome">{a.nome}</h2>
-              )}
-              <p class="ambito__descrizione">{a.descrizione_breve}</p>
-            </article>
-          ))
+          attivita.map((a) => {
+            const inner = (
+              <>
+                {a.nome_html ? (
+                  <h2 class="ambito__nome" set:html={a.nome_html} />
+                ) : (
+                  <h2 class="ambito__nome">{a.nome}</h2>
+                )}
+                <p class="ambito__descrizione">{a.descrizione_breve}</p>
+                {a.cadenza && (
+                  <p class="ambito__cadenza">{a.cadenza}</p>
+                )}
+              </>
+            );
+            return a.slug ? (
+              <a class="ambito ambito--link" href={`/attivita/${a.slug}/`}>{inner}</a>
+            ) : (
+              <article class="ambito">{inner}</article>
+            );
+          })
         )}
 
         <a class="ambito ambito--proposta" href="/contatti/">
@@ -110,5 +120,24 @@ const attivita = await fetchCollection<Attivita>('attivita', { sort: 'sort' });
 
   .ambito__descrizione {
     margin: 0;
+  }
+
+  .ambito__cadenza {
+    margin: var(--space-2) 0 0;
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .ambito--link {
+    color: var(--color-text);
+    text-decoration: none;
+    transition: border-color 150ms ease, transform 150ms ease;
+  }
+
+  .ambito--link:hover {
+    border-color: var(--color-accent);
+    transform: translateY(-2px);
   }
 </style>

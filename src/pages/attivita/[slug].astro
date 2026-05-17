@@ -1,0 +1,150 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import IntestazionePagina from '../../components/IntestazionePagina.astro';
+import CardEvento from '../../components/CardEvento.astro';
+import { fetchCollection } from '../../lib/directus';
+import type { Attivita, Evento } from '../../lib/types';
+
+export async function getStaticPaths() {
+  const attivita = await fetchCollection<Attivita>('attivita', {
+    sort: 'sort',
+  });
+  return attivita
+    .filter((a) => a.slug)
+    .map((a) => ({
+      params: { slug: a.slug! },
+      props: { attivita: a },
+    }));
+}
+
+interface Props {
+  attivita: Attivita;
+}
+
+const { attivita } = Astro.props;
+const adesso = new Date().toISOString();
+
+const [prossimiAppuntamenti, archivio, tutteAttivita] = await Promise.all([
+  fetchCollection<Evento>('eventi', {
+    filter: {
+      attivita_collegata: { _eq: attivita.UUID },
+      data_inizio: { _gte: adesso },
+    },
+    sort: 'data_inizio',
+  }),
+  fetchCollection<Evento>('eventi', {
+    filter: {
+      attivita_collegata: { _eq: attivita.UUID },
+      data_inizio: { _lt: adesso },
+    },
+    sort: '-data_inizio',
+    limit: 6,
+  }),
+  fetchCollection<Attivita>('attivita', { fields: 'UUID,slug', sort: 'sort' }),
+]);
+
+// Mappa per il routing nelle card (anche se sulla pagina attività gli eventi
+// linkano sempre al loro dettaglio singolo per non auto-ricaricare la stessa pagina)
+const slugAttivita: Record<string, string> = {};
+for (const a of tutteAttivita) {
+  if (a.UUID && a.slug) slugAttivita[a.UUID] = a.slug;
+}
+---
+
+<Layout
+  titolo={attivita.nome ?? 'Attività'}
+  descrizione={attivita.descrizione_breve ?? `Un'area di attività del Crocevia dei Mondi APS`}
+>
+  <IntestazionePagina
+    titolo={attivita.nome ?? 'Attività'}
+    occhiello="Le nostre aree"
+    sommario={attivita.descrizione_breve ?? undefined}
+  />
+
+  <section class="section">
+    <div class="container container-narrow">
+      <p class="breadcrumb">
+        <a href="/attivita/">← Tutte le attività</a>
+      </p>
+
+      {attivita.nome_html && (
+        <h2 class="nome-formattato" set:html={attivita.nome_html} />
+      )}
+
+      <h2>Prossimi appuntamenti</h2>
+      {prossimiAppuntamenti.length === 0 ? (
+        <p class="vuota">
+          Non ci sono appuntamenti in calendario al momento. Torna a trovarci.
+        </p>
+      ) : (
+        <ul role="list" class="griglia-card">
+          {prossimiAppuntamenti.map((e) => (
+            <li>
+              {/* In pagina attività, le card linkano al dettaglio del singolo evento
+                  (non riportano qui di nuovo), passando slugAttivita vuoto */}
+              <CardEvento evento={{ ...e, attivita_collegata: null }} />
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {archivio.length > 0 && (
+        <>
+          <h2>Appuntamenti recenti</h2>
+          <ul role="list" class="griglia-card">
+            {archivio.map((e) => (
+              <li>
+                <CardEvento evento={{ ...e, attivita_collegata: null }} />
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </div>
+  </section>
+</Layout>
+
+<style>
+  h2 {
+    margin-top: var(--space-12);
+    margin-bottom: var(--space-6);
+  }
+
+  h2:first-of-type {
+    margin-top: var(--space-6);
+  }
+
+  .breadcrumb {
+    margin: 0;
+  }
+
+  .breadcrumb a {
+    color: var(--color-accent);
+    text-decoration: none;
+    font-size: var(--text-sm);
+  }
+
+  .nome-formattato {
+    margin: var(--space-6) 0;
+    font-size: var(--text-2xl);
+    color: var(--color-text-muted);
+  }
+
+  .vuota {
+    color: var(--color-text-muted);
+    font-size: var(--text-lg);
+    padding: var(--space-6);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-md);
+    text-align: center;
+  }
+
+  .griglia-card {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-6);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+</style>
