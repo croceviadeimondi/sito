@@ -181,8 +181,13 @@ function etichettaTipo(tipo: string): string {
 
   .direttivo {
     list-style: none;
-    margin: 0;
-    padding: 0 0 var(--space-3);
+    /* Sfora la container-narrow per dare aria al carosello: occupa fino al bordo
+       del viewport ma allinea la prima card al testo della colonna. */
+    margin-block: 0;
+    margin-inline: calc(50% - 50vw);
+    padding-block: 0 var(--space-3);
+    padding-inline-start: calc(50vw - 50%);
+    padding-inline-end: var(--gutter);
     display: flex;
     gap: var(--space-4);
     overflow-x: auto;
