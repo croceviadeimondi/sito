@@ -6,7 +6,7 @@ import { formattaAnno } from '../../lib/formato';
 import type { Sede } from '../../lib/types';
 
 const tutte = await fetchCollection<Sede>('sedi', {
-  fields: 'id,nome,slug,is_sede_legale,citta,indirizzo_completo,email,telefono,descrizione,attiva_dal,sort,google_maps_embed_url',
+  fields: 'id,nome,slug,is_sede_legale,citta,indirizzo_completo,descrizione,attiva_dal,sort,google_maps_embed_url',
   sort: 'sort,nome',
 });
 // La sede legale è solo per scopi amministrativi (footer/contatti):
@@ -53,26 +53,14 @@ function embedSicuro(url: string | null): string | null {
                     <p class="sede__descrizione">{s.descrizione}</p>
                   )}
 
-                  <dl class="sede__contatti">
-                    {s.email && (
-                      <div>
-                        <dt>Email</dt>
-                        <dd><a href={`mailto:${s.email}`}>{s.email}</a></dd>
-                      </div>
-                    )}
-                    {s.telefono && (
-                      <div>
-                        <dt>Telefono</dt>
-                        <dd><a href={`tel:${s.telefono.replace(/\s+/g, '')}`}>{s.telefono}</a></dd>
-                      </div>
-                    )}
-                    {s.attiva_dal && (
+                  {s.attiva_dal && (
+                    <dl class="sede__contatti">
                       <div>
                         <dt>Attiva dal</dt>
                         <dd>{formattaAnno(s.attiva_dal)}</dd>
                       </div>
-                    )}
-                  </dl>
+                    </dl>
+                  )}
                 </div>
 
                 {embed && (

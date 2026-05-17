@@ -42,12 +42,17 @@ function buildQuery(opts: FetchOptions, filtroPubblicato: boolean): string {
   return qs ? `?${qs}` : '';
 }
 
+// Cache per-process: la stessa URL viene fetchata una sola volta per build.
+// Evita rate-limit Directus (FooterMain ecc. pescano sedi/impostazioni in ogni pagina).
+const cacheFetch = new Map<string, unknown>();
+
 export async function fetchCollection<T>(
   collection: string,
   opts: FetchOptions = {}
 ): Promise<T[]> {
   const filtroPubblicato = opts.pubblicato !== false;
   const url = `${DIRECTUS_URL}/items/${collection}${buildQuery(opts, filtroPubblicato)}`;
+  if (cacheFetch.has(url)) return cacheFetch.get(url) as T[];
   try {
     const res = await fetch(url);
     if (!res.ok) {
@@ -55,7 +60,9 @@ export async function fetchCollection<T>(
       return [];
     }
     const json = (await res.json()) as { data?: T[] };
-    return json.data ?? [];
+    const data = json.data ?? [];
+    cacheFetch.set(url, data);
+    return data;
   } catch (err) {
     console.warn(`[directus] ${collection}: fetch failed`, err);
     return [];
@@ -64,11 +71,14 @@ export async function fetchCollection<T>(
 
 export async function fetchSingleton<T>(collection: string): Promise<T | null> {
   const url = `${DIRECTUS_URL}/items/${collection}`;
+  if (cacheFetch.has(url)) return cacheFetch.get(url) as T | null;
   try {
     const res = await fetch(url);
     if (!res.ok) return null;
     const json = (await res.json()) as { data?: T };
-    return json.data ?? null;
+    const data = json.data ?? null;
+    cacheFetch.set(url, data);
+    return data;
   } catch {
     return null;
   }

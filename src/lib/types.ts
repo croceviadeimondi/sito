@@ -84,6 +84,18 @@ export interface Attivita {
   descrizione_breve: string | null;
 }
 
+export interface DocumentoTrasparenza {
+  id: string;
+  status: Status;
+  sort: number | null;
+  titolo: string;
+  categoria: string;
+  anno: number | null;
+  documento: string;
+  descrizione: string | null;
+  data_pubblicazione: string | null;
+}
+
 export interface Sede {
   id: string;
   status: Status;

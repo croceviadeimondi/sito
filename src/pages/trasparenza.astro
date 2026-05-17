@@ -1,0 +1,269 @@
+---
+import Layout from '../layouts/Layout.astro';
+import IntestazionePagina from '../components/IntestazionePagina.astro';
+import { fetchCollection, fetchSingleton, assetUrl } from '../lib/directus';
+import { formattaData } from '../lib/formato';
+import type { Impostazioni, Sede, DocumentoTrasparenza } from '../lib/types';
+
+const [impostazioni, sediLegali, documenti] = await Promise.all([
+  fetchSingleton<Impostazioni>('impostazioni'),
+  fetchCollection<Sede>('sedi', {
+    fields: 'id,nome,is_sede_legale,citta,indirizzo_completo',
+    filter: { is_sede_legale: { _eq: true } },
+    limit: 1,
+  }),
+  fetchCollection<DocumentoTrasparenza>('documenti_trasparenza', {
+    sort: 'categoria,-anno,sort',
+  }),
+]);
+
+const sedeLegale = sediLegali[0] ?? null;
+
+// Raggruppa documenti per categoria preservando l'ordine già imposto dal sort
+const perCategoria = new Map<string, DocumentoTrasparenza[]>();
+for (const d of documenti) {
+  const arr = perCategoria.get(d.categoria) ?? [];
+  arr.push(d);
+  perCategoria.set(d.categoria, arr);
+}
+
+function etichettaCategoria(c: string): string {
+  return c
+    .split('_')
+    .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
+    .join(' ');
+}
+---
+
+<Layout
+  titolo="Trasparenza"
+  descrizione="Trasparenza del Crocevia dei Mondi APS: statuto, bilanci, documenti istituzionali."
+>
+  <IntestazionePagina
+    titolo="Trasparenza"
+    occhiello="Obblighi APS"
+    sommario="In linea con la legge italiana sul Terzo Settore: chi siamo come ente, come ci finanziamo, quanto e da chi riceviamo."
+  />
+
+  <section class="section">
+    <div class="container container-narrow">
+      <h2>Dati istituzionali</h2>
+      <dl class="dati">
+        {impostazioni?.denominazione_completa && (
+          <div><dt>Denominazione</dt><dd>{impostazioni.denominazione_completa}</dd></div>
+        )}
+        {impostazioni?.sigla_giuridica && (
+          <div><dt>Forma giuridica</dt><dd>{impostazioni.sigla_giuridica}</dd></div>
+        )}
+        {sedeLegale?.indirizzo_completo && (
+          <div>
+            <dt>Sede legale</dt>
+            <dd>{sedeLegale.indirizzo_completo}{sedeLegale.citta && ` — ${sedeLegale.citta}`}</dd>
+          </div>
+        )}
+        {impostazioni?.codice_fiscale && (
+          <div><dt>Codice fiscale</dt><dd>{impostazioni.codice_fiscale}</dd></div>
+        )}
+        {impostazioni?.partita_iva && (
+          <div><dt>Partita IVA</dt><dd>{impostazioni.partita_iva}</dd></div>
+        )}
+        {impostazioni?.numero_runts && (
+          <div><dt>RUNTS</dt><dd>{impostazioni.numero_runts}</dd></div>
+        )}
+        {impostazioni?.email_principale && (
+          <div>
+            <dt>Email pubblica</dt>
+            <dd><a href={`mailto:${impostazioni.email_principale}`}>{impostazioni.email_principale}</a></dd>
+          </div>
+        )}
+      </dl>
+
+      <h2>Documenti</h2>
+      {documenti.length === 0 ? (
+        <p class="vuota">
+          Statuto, bilanci e altri documenti istituzionali saranno pubblicati a breve.
+        </p>
+      ) : (
+        <div class="categorie">
+          {Array.from(perCategoria.entries()).map(([cat, docs]) => (
+            <section class="categoria">
+              <h3>{etichettaCategoria(cat)}</h3>
+              <ul role="list" class="doclist">
+                {docs.map((d) => {
+                  const url = assetUrl(d.documento);
+                  return (
+                    <li>
+                      <a class="doc" href={url ?? '#'} rel="noopener" target="_blank">
+                        <div class="doc__main">
+                          <span class="doc__titolo">{d.titolo}</span>
+                          {d.descrizione && <span class="doc__desc">{d.descrizione}</span>}
+                        </div>
+                        <div class="doc__meta">
+                          {d.anno && <span class="doc__anno">{d.anno}</span>}
+                          {d.data_pubblicazione && (
+                            <time datetime={d.data_pubblicazione} class="doc__data">
+                              {formattaData(d.data_pubblicazione)}
+                            </time>
+                          )}
+                        </div>
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          ))}
+        </div>
+      )}
+
+      <h2>Contributi pubblici e compensi</h2>
+      <p>
+        In ottemperanza alla L. 124/2017, art. 1 commi 125-129, e all'art. 14 del
+        Codice del Terzo Settore, pubblichiamo qui — quando applicabile — i contributi
+        pubblici superiori a 10.000€ ricevuti nell'anno solare e gli eventuali compensi
+        a soggetti coinvolti nell'organizzazione.
+      </p>
+      <p class="nota">
+        Al momento non risultano contributi pubblici sopra soglia da segnalare,
+        né compensi a membri del direttivo.
+      </p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  h2 {
+    margin-top: var(--space-12);
+    margin-bottom: var(--space-4);
+  }
+
+  h2:first-of-type {
+    margin-top: 0;
+  }
+
+  .dati {
+    margin: 0 0 var(--space-8);
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .dati > div {
+    display: grid;
+    grid-template-columns: 12rem 1fr;
+    gap: var(--space-4);
+    padding-block: var(--space-3);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .dati > div:first-child {
+    border-top: none;
+    padding-top: 0;
+  }
+
+  .dati dt {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .dati dd {
+    margin: 0;
+    word-break: break-word;
+  }
+
+  .dati a {
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+
+  .vuota {
+    color: var(--color-text-muted);
+    font-size: var(--text-lg);
+    padding: var(--space-6);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-md);
+    text-align: center;
+  }
+
+  .categorie {
+    display: grid;
+    gap: var(--space-8);
+  }
+
+  .categoria h3 {
+    font-size: var(--text-xl);
+    margin: 0 0 var(--space-3);
+    color: var(--color-text);
+  }
+
+  .doclist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .doc {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: var(--color-text);
+    transition: border-color 150ms ease;
+  }
+
+  .doc:hover {
+    border-color: var(--color-accent);
+  }
+
+  .doc__main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .doc__titolo {
+    font-weight: 600;
+  }
+
+  .doc__desc {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+
+  .doc__meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-1);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+  }
+
+  .doc__anno {
+    font-weight: 600;
+    color: var(--color-accent);
+  }
+
+  .nota {
+    color: var(--color-text-muted);
+    font-style: italic;
+  }
+
+  @media (max-width: 540px) {
+    .dati > div {
+      grid-template-columns: 1fr;
+      gap: var(--space-1);
+    }
+  }
+</style>
