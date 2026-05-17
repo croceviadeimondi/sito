@@ -12,7 +12,7 @@ interface FotoCaroselloItem {
 
 const adesso = new Date().toISOString();
 
-const [prossimiEventi, progettiVetrina, heroEventi, fotoCarosello, attivitaTutte] = await Promise.all([
+const [prossimiEventi, progettiVetrina, fotoCarosello, attivitaTutte] = await Promise.all([
   fetchCollection<Evento>('eventi', {
     filter: { data_inizio: { _gte: adesso } },
     sort: 'data_inizio',
@@ -21,11 +21,6 @@ const [prossimiEventi, progettiVetrina, heroEventi, fotoCarosello, attivitaTutte
   fetchCollection<Progetto>('progetti', {
     sort: 'sort',
     limit: 3,
-  }),
-  fetchCollection<Evento>('eventi', {
-    filter: { mostra_nella_home: { _eq: true } },
-    sort: '-data_inizio',
-    limit: 6,
   }),
   // Carosello home: solo foto della gallery flaggate `in_carosello_home`
   // sulla junction eventi_files. Espandiamo l'evento parent per ricavare
@@ -51,11 +46,6 @@ const fotoGallery = fotoCarosello
     return { url, titolo: f.eventi_id.titolo, slug: f.eventi_id.slug };
   })
   .filter((x): x is { url: string; titolo: string; slug: string } => x !== null);
-
-const formattatoreDataBreve = new Intl.DateTimeFormat('it-IT', {
-  day: 'numeric',
-  month: 'long',
-});
 ---
 
 <Layout
@@ -63,33 +53,6 @@ const formattatoreDataBreve = new Intl.DateTimeFormat('it-IT', {
   descrizione="Crocevia dei Mondi APS: il gioco come strumento sociale, mondi che si incontrano nel Sud Italia."
   headerGrande
 >
-  <section class="hero">
-    {heroEventi.length > 0 && (
-      <ul role="list" class="hero__galleria">
-        {heroEventi.map((e) => {
-          const url = assetUrl(e.locandina);
-          return (
-            <li class="hero__slot">
-              <a href={`/eventi/${e.slug}/`} class="hero__card">
-                {url && (
-                  <img
-                    src={`${url}?width=900&height=600&fit=cover&format=jpg&quality=85`}
-                    alt={e.titolo}
-                    loading="eager"
-                  />
-                )}
-                <div class="hero__overlay">
-                  <time class="hero__data" datetime={e.data_inizio}>
-                    {formattatoreDataBreve.format(new Date(e.data_inizio))}
-                  </time>
-                  <h2 class="hero__nome">{e.titolo}</h2>
-                </div>
-              </a>
-            </li>
-          );
-        })}
-      </ul>
-    )}
     {fotoGallery.length > 0 && (
       <section class="banner-attivita" aria-label="Scopri le nostre attività">
         <ul role="list" class="banner-attivita__lista">
@@ -123,7 +86,6 @@ const formattatoreDataBreve = new Intl.DateTimeFormat('it-IT', {
         )}
       </section>
     )}
-  </section>
 
   <section class="section">
     <div class="container">
@@ -205,88 +167,6 @@ const formattatoreDataBreve = new Intl.DateTimeFormat('it-IT', {
 </script>
 
 <style>
-  .hero {
-    padding-block: var(--space-8) var(--space-12);
-  }
-
-  /* Galleria orizzontale scrollabile, sfora il container fino al bordo viewport */
-  .hero__galleria {
-    list-style: none;
-    margin: 0 0 var(--space-8);
-    padding: 0 var(--gutter);
-    display: flex;
-    gap: var(--space-4);
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-accent) transparent;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .hero__galleria::-webkit-scrollbar { height: 8px; }
-  .hero__galleria::-webkit-scrollbar-thumb {
-    background: var(--color-accent);
-    border-radius: var(--radius-pill);
-  }
-
-  .hero__slot {
-    flex: 0 0 auto;
-    width: min(72vw, 540px);
-    scroll-snap-align: start;
-  }
-
-  .hero__card {
-    position: relative;
-    display: block;
-    aspect-ratio: 3 / 2;
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    background: color-mix(in srgb, var(--cdm-petrol) 15%, transparent);
-    text-decoration: none;
-    color: var(--color-on-dark);
-    box-shadow: 0 4px 16px color-mix(in srgb, var(--cdm-petrol) 18%, transparent);
-    transition: transform 200ms ease;
-  }
-
-  .hero__card:hover {
-    transform: translateY(-2px);
-  }
-
-  .hero__card img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
-  .hero__overlay {
-    position: absolute;
-    inset: auto 0 0 0;
-    padding: var(--space-6);
-    background: linear-gradient(
-      to top,
-      color-mix(in srgb, var(--cdm-petrol) 92%, transparent) 0%,
-      color-mix(in srgb, var(--cdm-petrol) 50%, transparent) 60%,
-      transparent 100%
-    );
-    color: var(--color-on-dark);
-  }
-
-  .hero__data {
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-size: var(--text-sm);
-    font-weight: 600;
-    color: var(--cdm-orange-light);
-  }
-
-  .hero__nome {
-    margin: var(--space-1) 0 0;
-    font-size: var(--text-2xl);
-    line-height: 1.15;
-    color: var(--color-on-dark);
-  }
-
   /* Banner full-width: foto curate (flag in_carosello_home) con CTA overlay.
      Click sulla slide -> dettaglio del singolo evento. */
   .banner-attivita {
@@ -399,8 +279,6 @@ const formattatoreDataBreve = new Intl.DateTimeFormat('it-IT', {
   }
 
   @media (max-width: 640px) {
-    .hero__nome { font-size: var(--text-xl); }
-    .hero__slot { width: 84vw; }
     .banner-attivita__link {
       aspect-ratio: 4 / 5;
     }
