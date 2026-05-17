@@ -2,6 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import { fetchCollection, assetUrl } from '../../lib/directus';
 import { formattaPeriodo } from '../../lib/formato';
+import { mdHtml } from '../../lib/markdown';
 import type { Evento } from '../../lib/types';
 
 export async function getStaticPaths() {
@@ -60,12 +61,12 @@ const urlImmagine = assetUrl(evento.locandina);
       <section class="section">
         <div class="container container-narrow">
           {evento.descrizione_completa && (
-            <div class="rt" set:html={evento.descrizione_completa} />
+            <div class="rt" set:html={mdHtml(evento.descrizione_completa)} />
           )}
           {evento.ospiti_speciali && (
             <aside class="ospiti">
               <h2>Ospiti speciali</h2>
-              <p>{evento.ospiti_speciali}</p>
+              <div class="rt" set:html={mdHtml(evento.ospiti_speciali)} />
             </aside>
           )}
         </div>

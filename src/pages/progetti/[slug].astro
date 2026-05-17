@@ -2,6 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import { fetchCollection, assetUrl } from '../../lib/directus';
 import { formattaAnno } from '../../lib/formato';
+import { mdHtml } from '../../lib/markdown';
 import type { Progetto } from '../../lib/types';
 
 export async function getStaticPaths() {
@@ -99,7 +100,7 @@ const haDati = Boolean(progetto.luogo || progetto.bando_finanziatore || importoF
     {progetto.descrizione_completa && (
       <section class="section">
         <div class="container container-narrow">
-          <div class="rt" set:html={progetto.descrizione_completa} />
+          <div class="rt" set:html={mdHtml(progetto.descrizione_completa)} />
         </div>
       </section>
     )}
@@ -117,7 +118,7 @@ const haDati = Boolean(progetto.luogo || progetto.bando_finanziatore || importoF
       <section class="section">
         <div class="container container-narrow">
           <h2>Risultati raggiunti</h2>
-          <div class="rt" set:html={progetto.risultati_raggiunti} />
+          <div class="rt" set:html={mdHtml(progetto.risultati_raggiunti)} />
         </div>
       </section>
     )}

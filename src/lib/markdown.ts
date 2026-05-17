@@ -15,6 +15,16 @@ export function mdInline(testo: string | null | undefined): string {
 }
 
 /**
+ * Markdown completo → HTML: paragrafi, titoli, liste, link, immagini.
+ * Per i contenuti lunghi (descrizioni complete, risultati). Va inserito
+ * in un contenitore a blocco (es. <div class="rt">), non in un <p>.
+ */
+export function mdHtml(testo: string | null | undefined): string {
+  if (!testo) return '';
+  return marked.parse(testo.trim()) as string;
+}
+
+/**
  * Markdown → testo piatto, senza sintassi né tag.
  * Per i punti dove serve testo puro: <meta description>, tag social, sommari.
  */
