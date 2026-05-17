@@ -88,17 +88,103 @@ const gruppi = (impostazioni?.gruppi_chat ?? []).filter((g) => g?.nome && g?.url
         )}
       </div>
 
-      <div class="nota-form">
-        <h2>Form di contatto</h2>
-        <p>
-          A breve troverai qui un modulo per scriverci direttamente dal sito.
-          Nel frattempo, scrivici via email — risponderemo il prima possibile.
+      <section class="form-sezione">
+        <h2>Scrivici direttamente</h2>
+        <p class="form-intro">
+          I tuoi dati arrivano nei nostri archivi e li usiamo solo per
+          ricontattarti via email. Non li condividiamo con terzi.
         </p>
-      </div>
+
+        <form class="form-contatti" id="form-contatti" novalidate>
+          <div class="form-griglia">
+            <div class="form-campo">
+              <label for="form-nome">Nome</label>
+              <input type="text" id="form-nome" name="nome" required maxlength="100" autocomplete="name" />
+            </div>
+            <div class="form-campo">
+              <label for="form-email">Email</label>
+              <input type="email" id="form-email" name="email" required maxlength="200" autocomplete="email" />
+            </div>
+          </div>
+          <div class="form-campo">
+            <label for="form-oggetto">Oggetto <span class="form-opt">(opzionale)</span></label>
+            <input type="text" id="form-oggetto" name="oggetto" maxlength="200" />
+          </div>
+          <div class="form-campo">
+            <label for="form-messaggio">Messaggio</label>
+            <textarea id="form-messaggio" name="messaggio" required minlength="10" rows="6"></textarea>
+          </div>
+
+          <div class="form-honeypot" aria-hidden="true">
+            <label for="form-website">Non compilare</label>
+            <input type="text" id="form-website" name="website" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <div class="form-check">
+            <input type="checkbox" id="form-privacy" name="accettazione_privacy" required />
+            <label for="form-privacy">
+              Acconsento al trattamento dei miei dati per essere ricontattato/a.
+            </label>
+          </div>
+
+          <button type="submit" class="bottone form-submit">Invia messaggio</button>
+          <p class="form-stato" role="status" aria-live="polite"></p>
+        </form>
+      </section>
 
     </div>
   </section>
 </Layout>
+
+<script>
+  const form = document.getElementById('form-contatti') as HTMLFormElement | null;
+  if (form) {
+    const stato = form.querySelector('.form-stato') as HTMLElement;
+    const submit = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const cmsUrl = 'https://cms.croceviadeimondi.org/items/messaggi_contatto';
+
+    const get = (n: string) =>
+      (form.elements.namedItem(n) as HTMLInputElement | HTMLTextAreaElement | null)?.value ?? '';
+
+    const setStato = (testo: string, cls: 'ok' | 'errore' | 'corso' | '') => {
+      stato.textContent = testo;
+      stato.className = 'form-stato' + (cls ? ` form-stato--${cls}` : '');
+    };
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+      if (get('website')) return; // honeypot: bot rilevato, fingiamo successo silenzioso
+
+      submit.disabled = true;
+      setStato('Invio in corso…', 'corso');
+
+      try {
+        const res = await fetch(cmsUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nome: get('nome'),
+            email: get('email'),
+            oggetto: get('oggetto') || null,
+            messaggio: get('messaggio'),
+            accettazione_privacy: true,
+          }),
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        setStato('Grazie! Ti risponderemo via email il prima possibile.', 'ok');
+        form.reset();
+      } catch {
+        setStato("Errore nell'invio. Riprova o scrivici direttamente via email.", 'errore');
+      } finally {
+        submit.disabled = false;
+      }
+    });
+  }
+</script>
 
 <style>
   .dati-contatto {
@@ -153,16 +239,122 @@ const gruppi = (impostazioni?.gruppi_chat ?? []).filter((g) => g?.nome && g?.url
     font-style: italic;
   }
 
-  .nota-form {
-    border: 1px dashed var(--color-border);
-    padding: var(--space-6);
-    border-radius: var(--radius-md);
+  .form-sezione h2 {
+    margin: 0 0 var(--space-3);
+    font-size: var(--text-2xl);
   }
 
-  .nota-form h2 {
-    margin-top: 0;
-    font-size: var(--text-xl);
+  .form-intro {
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-6);
+    max-width: 60ch;
   }
+
+  .form-contatti {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .form-griglia {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 600px) {
+    .form-griglia {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .form-campo {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .form-campo label {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-text-muted);
+  }
+
+  .form-opt {
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--color-text-muted);
+  }
+
+  .form-campo input,
+  .form-campo textarea {
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text);
+    font: inherit;
+    font-size: var(--text-base);
+  }
+
+  .form-campo input:focus-visible,
+  .form-campo textarea:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 1px;
+    border-color: var(--color-accent);
+  }
+
+  .form-campo textarea {
+    resize: vertical;
+    min-height: 8rem;
+  }
+
+  .form-honeypot {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .form-check {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+  }
+
+  .form-check input[type="checkbox"] {
+    margin-top: 0.25em;
+    width: 1.1em;
+    height: 1.1em;
+    accent-color: var(--color-accent);
+    flex-shrink: 0;
+  }
+
+  .form-submit {
+    align-self: flex-start;
+  }
+
+  .form-submit[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .form-stato {
+    margin: 0;
+    font-size: var(--text-sm);
+    min-height: 1.2em;
+  }
+
+  .form-stato--corso { color: var(--color-text-muted); }
+  .form-stato--ok    { color: #2a7a2a; font-weight: 600; }
+  .form-stato--errore { color: #b03a2e; font-weight: 600; }
 
   @media (max-width: 540px) {
     .riga-contatto {
