@@ -13,6 +13,11 @@ export type Ricorrenza =
   | 'mensile'
   | (string & {});
 
+export interface GruppoChat {
+  nome: string;
+  url: string;
+}
+
 export interface Impostazioni {
   id: string;
   denominazione_completa: string | null;
@@ -36,6 +41,7 @@ export interface Impostazioni {
   logo_chiaro: string | null;
   favicon: string | null;
   testo_footer: string | null;
+  gruppi_chat: GruppoChat[] | null;
 }
 
 export interface Evento {

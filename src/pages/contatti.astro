@@ -19,6 +19,8 @@ if (impostazioni?.instagram_handle) social.push({ etichetta: 'Instagram', url: i
 if (impostazioni?.facebook_url) social.push({ etichetta: 'Facebook', url: impostazioni.facebook_url });
 if (impostazioni?.linkedin_url) social.push({ etichetta: 'LinkedIn', url: impostazioni.linkedin_url });
 if (impostazioni?.youtube_url) social.push({ etichetta: 'YouTube', url: impostazioni.youtube_url });
+
+const gruppi = (impostazioni?.gruppi_chat ?? []).filter((g) => g?.nome && g?.url);
 ---
 
 <Layout
@@ -65,7 +67,23 @@ if (impostazioni?.youtube_url) social.push({ etichetta: 'YouTube', url: impostaz
           </p>
         )}
 
-        {!email && !telefono && social.length === 0 && (
+        {gruppi.length > 0 && (
+          <p class="riga-contatto">
+            <span class="riga-contatto__etichetta">
+              {gruppi.length === 1 ? 'Gruppo' : 'Gruppi'}
+            </span>
+            <span class="riga-contatto__valore lista-social">
+              {gruppi.map((g, i) => (
+                <>
+                  {i > 0 && <span aria-hidden="true"> · </span>}
+                  <a href={g.url} rel="noopener" target="_blank">{g.nome}</a>
+                </>
+              ))}
+            </span>
+          </p>
+        )}
+
+        {!email && !telefono && social.length === 0 && gruppi.length === 0 && (
           <p class="nota">I recapiti saranno pubblicati a breve.</p>
         )}
       </div>
