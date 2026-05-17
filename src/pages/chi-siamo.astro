@@ -101,11 +101,15 @@ function etichettaTipo(tipo: string): string {
                     <span class="membro__iniziali" aria-hidden="true">{iniziali(m.name)}</span>
                   )}
                 </div>
-                <h3 class="membro__nome">
-                  {m.name}
-                  {m.nickname && <span class="membro__nickname"> «{m.nickname}»</span>}
-                </h3>
                 <p class="membro__ruolo">{m.role}</p>
+                {m.nickname ? (
+                  <>
+                    <h3 class="membro__nickname">{m.nickname}</h3>
+                    <p class="membro__nome">{m.name}</p>
+                  </>
+                ) : (
+                  <h3 class="membro__nickname">{m.name}</h3>
+                )}
                 {m.bio && <p class="membro__bio">{m.bio}</p>}
               </li>
             );
@@ -221,18 +225,6 @@ function etichettaTipo(tipo: string): string {
     letter-spacing: 0.04em;
   }
 
-  .membro__nome {
-    margin: 0;
-    font-size: var(--text-lg);
-  }
-
-  .membro__nickname {
-    font-weight: 400;
-    color: var(--color-text-muted);
-    font-style: italic;
-    font-size: var(--text-base);
-  }
-
   .membro__ruolo {
     margin: 0;
     text-transform: uppercase;
@@ -242,10 +234,25 @@ function etichettaTipo(tipo: string): string {
     color: var(--color-accent);
   }
 
-  .membro__bio {
-    margin: var(--space-2) 0 0;
-    color: var(--color-text);
+  .membro__nickname {
+    margin: var(--space-1) 0 0;
+    font-size: var(--text-xl);
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  .membro__nome {
+    margin: 0;
     font-size: var(--text-sm);
+    font-weight: 400;
+    color: var(--color-text-muted);
+  }
+
+  .membro__bio {
+    margin: var(--space-3) 0 0;
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+    line-height: 1.5;
   }
 
   .section--alt {
