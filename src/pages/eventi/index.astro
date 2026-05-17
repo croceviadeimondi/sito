@@ -3,9 +3,10 @@ import Layout from '../../layouts/Layout.astro';
 import IntestazionePagina from '../../components/IntestazionePagina.astro';
 import CardEvento from '../../components/CardEvento.astro';
 import { fetchCollection } from '../../lib/directus';
+import { immagine, SLOT } from '../../lib/immagini';
 import type { Evento, Attivita } from '../../lib/types';
 
-const [tutti, attivitaTutte] = await Promise.all([
+const [tutti, attivitaTutte, fotoHero] = await Promise.all([
   // Solo eventi una tantum: gli appuntamenti ricorrenti delle attività
   // restano sulle pagine /attivita/[slug] per non duplicare in lista
   fetchCollection<Evento>('eventi', {
@@ -13,6 +14,7 @@ const [tutti, attivitaTutte] = await Promise.all([
     sort: 'data_inizio',
   }),
   fetchCollection<Attivita>('attivita', { fields: 'UUID,slug', sort: 'sort' }),
+  immagine(SLOT.eventiHero, null, { larghezza: 1800 }),
 ]);
 const slugAttivita: Record<string, string> = {};
 for (const a of attivitaTutte) {
@@ -36,8 +38,14 @@ const archivio = tutti
     sommario="Demo, tornei, gruppi di lettura, laboratori. Tutti gli appuntamenti aperti al pubblico - passati e futuri."
   />
 
-  <section class="section">
+  <section class="section section--hero">
     <div class="container">
+      {fotoHero && (
+        <figure class="foto-eventi">
+          <img src={fotoHero.src} alt={fotoHero.alt} loading="lazy" />
+        </figure>
+      )}
+
       <p class="rimando-attivita">
         Cerchi gli appuntamenti ricorrenti (Mana Vault, Gioco di Ruolo, Board Games…)?
         <a href="/attivita/">Vedi le attività ricorrenti →</a>
@@ -75,6 +83,24 @@ const archivio = tutti
 <style>
   .lista__titolo {
     margin-bottom: var(--space-8);
+  }
+
+  /* Section dell'hero: niente padding-block, cosi' l'hero sconfina
+     sopra la barra scura del titolo. */
+  .section--hero {
+    padding-block: 0;
+  }
+
+  .foto-eventi {
+    margin: calc(-1 * var(--space-8)) 0 var(--space-8);
+  }
+
+  .foto-eventi img {
+    display: block;
+    width: 100%;
+    max-height: 380px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
   }
 
   .rimando-attivita {

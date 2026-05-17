@@ -3,6 +3,7 @@ import Layout from '../../layouts/Layout.astro';
 import IntestazionePagina from '../../components/IntestazionePagina.astro';
 import CardEvento from '../../components/CardEvento.astro';
 import { fetchCollection } from '../../lib/directus';
+import { immagine } from '../../lib/immagini';
 import type { Attivita, Evento } from '../../lib/types';
 
 export async function getStaticPaths() {
@@ -24,7 +25,7 @@ interface Props {
 const { attivita } = Astro.props;
 const adesso = new Date().toISOString();
 
-const [prossimiAppuntamenti, archivio, tutteAttivita] = await Promise.all([
+const [prossimiAppuntamenti, archivio, tutteAttivita, fotoHero] = await Promise.all([
   fetchCollection<Evento>('eventi', {
     filter: {
       attivita_collegata: { _eq: attivita.UUID },
@@ -41,6 +42,7 @@ const [prossimiAppuntamenti, archivio, tutteAttivita] = await Promise.all([
     limit: 6,
   }),
   fetchCollection<Attivita>('attivita', { fields: 'UUID,slug', sort: 'sort' }),
+  immagine(`attivita/${attivita.slug}`, null, { larghezza: 1600 }),
 ]);
 
 // Mappa per il routing nelle card (anche se sulla pagina attività gli eventi
@@ -61,8 +63,14 @@ for (const a of tutteAttivita) {
     sommario={attivita.descrizione_breve ?? undefined}
   />
 
-  <section class="section">
+  <section class="section section--hero">
     <div class="container container-narrow">
+      {fotoHero && (
+        <figure class="hero-attivita">
+          <img src={fotoHero.src} alt={fotoHero.alt} loading="eager" />
+        </figure>
+      )}
+
       <p class="breadcrumb">
         <a href="/attivita/">← Tutte le attività</a>
       </p>
@@ -116,6 +124,24 @@ for (const a of tutteAttivita) {
 
   .breadcrumb {
     margin: 0;
+  }
+
+  /* Section dell'hero: niente padding-block, cosi' l'hero sconfina
+     sopra la barra scura del titolo. */
+  .section--hero {
+    padding-block: 0;
+  }
+
+  .hero-attivita {
+    margin: calc(-1 * var(--space-8)) 0 var(--space-8);
+  }
+
+  .hero-attivita img {
+    display: block;
+    width: 100%;
+    max-height: 420px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
   }
 
   .breadcrumb a {

@@ -6,7 +6,7 @@ import { immagine, SLOT } from '../lib/immagini';
 import { formattaData } from '../lib/formato';
 import type { MediaEsterno, DirettivoMembro } from '../lib/types';
 
-const [mediaRecenti, direttivo, heroFoto] = await Promise.all([
+const [mediaRecenti, direttivo, heroFoto, scuoleFoto] = await Promise.all([
   fetchCollection<MediaEsterno>('media_esterni', {
     pubblicato: false,
     filter: { add_to_parlano_di_noi: { _eq: true } },
@@ -16,10 +16,8 @@ const [mediaRecenti, direttivo, heroFoto] = await Promise.all([
   fetchCollection<DirettivoMembro>('direttivo_membri', {
     sort: 'sort,id',
   }),
-  immagine(SLOT.chiSiamoHero, {
-    src: '/immagini/questisiamonoi.jpg',
-    alt: "Foto di gruppo dei membri del direttivo del Crocevia all'apertura della sede a Trani, da sinistra: Giuseppe, Martina, Gloria, Enrico, Antonino, Eleonora, Elisa, Paola, Rico.",
-  }),
+  immagine(SLOT.chiSiamoHero, null, { larghezza: 1600 }),
+  immagine(SLOT.chiSiamoScuole, null, { larghezza: 1200 }),
 ]);
 
 function iniziali(nome: string): string {
@@ -51,7 +49,7 @@ function etichettaTipo(tipo: string): string {
     sommario="Una comunità di persone che costruisce insieme. Il gioco è la nostra lingua, l'inclusione è la nostra pratica."
   />
 
-  <section class="section">
+  <section class="section section--hero">
     <div class="container container-narrow">
 
       {heroFoto && (
@@ -106,6 +104,12 @@ function etichettaTipo(tipo: string): string {
           accessibile.
         </p>
       </article>
+
+      {scuoleFoto && (
+        <figure class="foto-manifesto">
+          <img src={scuoleFoto.src} alt={scuoleFoto.alt} loading="lazy" />
+        </figure>
+      )}
 
       <article class="valore">
         <h3>3. Orizzontalità radicale e autonomia diffusa</h3>
@@ -223,14 +227,14 @@ function etichettaTipo(tipo: string): string {
 </Layout>
 
 <style>
-  /* La prima section è subito sotto il pannello scuro dell'intestazione:
-     ridotto il padding-top di default cosi' la foto sale verso l'header. */
-  .section:first-of-type {
-    padding-block-start: var(--space-4);
+  /* Section dell'hero: niente padding-block, cosi' l'hero (margine
+     negativo) sconfina sopra la barra scura del titolo. */
+  .section--hero {
+    padding-block: 0;
   }
 
   .hero-foto {
-    margin: 0 0 var(--space-8);
+    margin: calc(-1 * var(--space-8)) 0 var(--space-8);
   }
 
   .hero-foto img {
@@ -257,6 +261,18 @@ function etichettaTipo(tipo: string): string {
   h2 {
     margin-top: var(--space-12);
     margin-bottom: var(--space-6);
+  }
+
+  .foto-manifesto {
+    margin: var(--space-12) 0;
+  }
+
+  .foto-manifesto img {
+    display: block;
+    width: 100%;
+    max-height: 380px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
   }
 
   .valore {

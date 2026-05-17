@@ -31,3 +31,6 @@ CLAUDE.md
 # editor swap files
 *.kate-swp
 .*.kate-swp
+
+# immagini caricate localmente: i contenuti vanno su Directus
+public/immagini/

@@ -12,16 +12,32 @@
 import { fetchCollection, assetUrl } from './directus';
 import type { ImmagineSito } from './types';
 
-/** Inventario degli slot immagine del sito. Aggiungere qui i nuovi slot. */
+/**
+ * Slot immagine noti. Le pagine attività usano chiavi dinamiche
+ * `attivita/<slug>` costruite a runtime, quindi non sono elencate qui.
+ */
 export const SLOT = {
   chiSiamoHero: 'chi-siamo/hero',
+  chiSiamoScuole: 'chi-siamo/scuole',
+  contattiHero: 'contatti/hero',
+  eventiHero: 'eventi/hero',
 } as const;
 
-export type Slot = (typeof SLOT)[keyof typeof SLOT];
+/** Una chiave nota, oppure una costruita a runtime (es. `attivita/<slug>`). */
+export type Slot = (typeof SLOT)[keyof typeof SLOT] | (string & {});
 
 export interface FotoSlot {
   src: string;
   alt: string;
+}
+
+export interface OpzioniImmagine {
+  /**
+   * Larghezza max in px. Se valorizzata, Directus serve una versione
+   * ridotta in WebP (l'originale caricato può restare pesante).
+   * Ignorata sulle immagini di fallback statiche.
+   */
+  larghezza?: number;
 }
 
 // Cache per-build: la collection viene fetchata una sola volta.
@@ -31,6 +47,7 @@ async function caricaImmagini(): Promise<Map<string, ImmagineSito>> {
   if (cache) return cache;
   const records = await fetchCollection<ImmagineSito>('immagini_sito', {
     fields: 'chiave,immagine,alt',
+    limit: -1,
   });
   cache = new Map(records.map((r) => [r.chiave, r]));
   return cache;
@@ -43,11 +60,17 @@ async function caricaImmagini(): Promise<Map<string, ImmagineSito>> {
  */
 export async function immagine(
   slot: Slot,
-  fallback: FotoSlot | null = null
+  fallback: FotoSlot | null = null,
+  opzioni: OpzioniImmagine = {}
 ): Promise<FotoSlot | null> {
   const mappa = await caricaImmagini();
   const rec = mappa.get(slot);
-  const src = assetUrl(rec?.immagine);
-  if (!src) return fallback;
-  return { src, alt: rec?.alt ?? fallback?.alt ?? '' };
+  const base = assetUrl(rec?.immagine);
+  if (base) {
+    const src = opzioni.larghezza
+      ? `${base}?width=${opzioni.larghezza}&format=webp&quality=82`
+      : base;
+    return { src, alt: rec?.alt ?? fallback?.alt ?? '' };
+  }
+  return fallback;
 }

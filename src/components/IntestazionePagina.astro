@@ -22,7 +22,8 @@ const { titolo, occhiello, sommario } = Astro.props;
       radial-gradient(ellipse at 100% 50%, color-mix(in srgb, var(--cdm-orange) 18%, transparent), transparent 60%),
       var(--cdm-petrol);
     color: var(--color-on-dark);
-    padding-block: var(--space-16);
+    /* Top dimezzato rispetto al bottom: la barra è più compatta in alto. */
+    padding-block: var(--space-8) var(--space-16);
   }
 
   .intestazione-pagina__inner {
