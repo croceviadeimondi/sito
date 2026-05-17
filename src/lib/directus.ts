@@ -46,6 +46,22 @@ function buildQuery(opts: FetchOptions, filtroPubblicato: boolean): string {
 // Evita rate-limit Directus (FooterMain ecc. pescano sedi/impostazioni in ogni pagina).
 const cacheFetch = new Map<string, unknown>();
 
+// Retry con backoff per il caso 429: il rate limiter di Directus colpisce
+// quando i build sono ravvicinati. Ritentare lascia che la finestra si svuoti.
+async function fetchConRetry(url: string, collection: string): Promise<Response | null> {
+  const MAX_TENTATIVI = 4;
+  let ultimaResposta: Response | null = null;
+  for (let i = 0; i < MAX_TENTATIVI; i++) {
+    const res = await fetch(url);
+    if (res.status !== 429) return res;
+    ultimaResposta = res;
+    const attesa = 500 * Math.pow(2, i); // 500ms, 1s, 2s, 4s
+    console.warn(`[directus] ${collection}: 429, riprovo tra ${attesa}ms (tentativo ${i + 1}/${MAX_TENTATIVI})`);
+    await new Promise((r) => setTimeout(r, attesa));
+  }
+  return ultimaResposta;
+}
+
 export async function fetchCollection<T>(
   collection: string,
   opts: FetchOptions = {}
@@ -54,9 +70,9 @@ export async function fetchCollection<T>(
   const url = `${DIRECTUS_URL}/items/${collection}${buildQuery(opts, filtroPubblicato)}`;
   if (cacheFetch.has(url)) return cacheFetch.get(url) as T[];
   try {
-    const res = await fetch(url);
-    if (!res.ok) {
-      console.warn(`[directus] ${collection}: HTTP ${res.status}`);
+    const res = await fetchConRetry(url, collection);
+    if (!res || !res.ok) {
+      console.warn(`[directus] ${collection}: HTTP ${res?.status ?? 'no response'}`);
       return [];
     }
     const json = (await res.json()) as { data?: T[] };
@@ -73,8 +89,8 @@ export async function fetchSingleton<T>(collection: string): Promise<T | null> {
   const url = `${DIRECTUS_URL}/items/${collection}`;
   if (cacheFetch.has(url)) return cacheFetch.get(url) as T | null;
   try {
-    const res = await fetch(url);
-    if (!res.ok) return null;
+    const res = await fetchConRetry(url, collection);
+    if (!res || !res.ok) return null;
     const json = (await res.json()) as { data?: T };
     const data = json.data ?? null;
     cacheFetch.set(url, data);
