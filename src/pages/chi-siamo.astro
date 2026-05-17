@@ -1,16 +1,30 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import IntestazionePagina from '../components/IntestazionePagina.astro';
-import { fetchCollection } from '../lib/directus';
+import { fetchCollection, assetUrl } from '../lib/directus';
 import { formattaData } from '../lib/formato';
-import type { MediaEsterno } from '../lib/types';
+import type { MediaEsterno, DirettivoMembro } from '../lib/types';
 
-const mediaRecenti = await fetchCollection<MediaEsterno>('media_esterni', {
-  pubblicato: false,
-  filter: { add_to_parlano_di_noi: { _eq: true } },
-  sort: '-data,-id',
-  limit: 3,
-});
+const [mediaRecenti, direttivo] = await Promise.all([
+  fetchCollection<MediaEsterno>('media_esterni', {
+    pubblicato: false,
+    filter: { add_to_parlano_di_noi: { _eq: true } },
+    sort: '-data,-id',
+    limit: 3,
+  }),
+  fetchCollection<DirettivoMembro>('direttivo_membri', {
+    sort: 'sort,id',
+  }),
+]);
+
+function iniziali(nome: string): string {
+  return nome
+    .split(/\s+/)
+    .map((p) => p.charAt(0))
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+}
 
 function etichettaTipo(tipo: string): string {
   switch (tipo) {
@@ -63,10 +77,35 @@ function etichettaTipo(tipo: string): string {
       </ul>
 
       <h2>Il direttivo</h2>
-      <p>
-        L'associazione è guidata da un direttivo eletto. I profili dei membri,
-        con ruoli e brevi biografie, saranno pubblicati a breve.
-      </p>
+      {direttivo.length === 0 ? (
+        <p>
+          L'associazione è guidata da un direttivo eletto. I profili dei membri,
+          con ruoli e brevi biografie, saranno pubblicati a breve.
+        </p>
+      ) : (
+        <ul role="list" class="direttivo">
+          {direttivo.map((m) => {
+            const photo = assetUrl(m.photo);
+            return (
+              <li class="membro">
+                <div class="membro__foto">
+                  {photo ? (
+                    <img src={photo} alt={m.name} loading="lazy" />
+                  ) : (
+                    <span class="membro__iniziali" aria-hidden="true">{iniziali(m.name)}</span>
+                  )}
+                </div>
+                <h3 class="membro__nome">
+                  {m.name}
+                  {m.nickname && <span class="membro__nickname"> «{m.nickname}»</span>}
+                </h3>
+                <p class="membro__ruolo">{m.role}</p>
+                {m.bio && <p class="membro__bio">{m.bio}</p>}
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   </section>
 
@@ -128,6 +167,79 @@ function etichettaTipo(tipo: string): string {
     border-left: 3px solid var(--color-accent);
     background: color-mix(in srgb, var(--cdm-orange) 6%, transparent);
     border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  }
+
+  .direttivo {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-6);
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+
+  .membro {
+    padding: var(--space-6);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-2);
+  }
+
+  .membro__foto {
+    width: 6rem;
+    height: 6rem;
+    border-radius: var(--radius-pill);
+    background: color-mix(in srgb, var(--cdm-petrol) 10%, transparent);
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    margin-bottom: var(--space-2);
+  }
+
+  .membro__foto img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .membro__iniziali {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: var(--text-2xl);
+    color: var(--color-accent);
+    letter-spacing: 0.04em;
+  }
+
+  .membro__nome {
+    margin: 0;
+    font-size: var(--text-lg);
+  }
+
+  .membro__nickname {
+    font-weight: 400;
+    color: var(--color-text-muted);
+    font-style: italic;
+    font-size: var(--text-base);
+  }
+
+  .membro__ruolo {
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: var(--text-sm);
+    font-weight: 700;
+    color: var(--color-accent);
+  }
+
+  .membro__bio {
+    margin: var(--space-2) 0 0;
+    color: var(--color-text);
+    font-size: var(--text-sm);
   }
 
   .section--alt {

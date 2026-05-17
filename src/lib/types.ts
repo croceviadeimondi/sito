@@ -90,6 +90,17 @@ export interface Attivita {
   descrizione_breve: string | null;
 }
 
+export interface DirettivoMembro {
+  id: number;
+  status: Status;
+  sort: number | null;
+  name: string;
+  role: string;
+  photo: string | null;
+  bio: string | null;
+  nickname: string | null;
+}
+
 export interface DocumentoTrasparenza {
   id: string;
   status: Status;
