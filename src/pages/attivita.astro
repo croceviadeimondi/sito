@@ -27,13 +27,16 @@ const attivitaPiuVicina = prossimi[0]?.attivita_collegata ?? null;
  * Layout della pagina: ordine, colore, dimensione e disegno di ogni area,
  * per slug. Le 5 aree sono un insieme fisso (i sub-brand), quindi la
  * disposizione è definita qui e non dal sort di Directus.
+ * La griglia ha 30 colonne (6 "tessere" da 5 sotto-colonne ciascuna):
+ * la finezza serve per scostamenti di 0.2 tessera, es. boardgames 3.8
+ * e mana-vault 2.2 sulla stessa riga.
  */
 const LAYOUT = [
-  { slug: 'gioco-di-ruolo',     colore: 't-vermillion', span: 'span-3', disegno: 'd20' },
-  { slug: 'mondi-tra-le-righe', colore: 't-petrol',     span: 'span-3', disegno: 'libro' },
-  { slug: 'boardgames',         colore: 't-cobalt',     span: 'span-4', disegno: 'meeple' },
-  { slug: 'mana-vault',         colore: 't-navy',       span: 'span-2', disegno: 'carte' },
-  { slug: 'mondi-darte',        colore: 't-orange',     span: 'span-2', disegno: 'matita' },
+  { slug: 'gioco-di-ruolo',     colore: 't-vermillion', span: 'span-15', disegno: 'd20' },
+  { slug: 'mondi-tra-le-righe', colore: 't-petrol',     span: 'span-15', disegno: 'libro' },
+  { slug: 'boardgames',         colore: 't-cobalt',     span: 'span-19', disegno: 'meeple' },
+  { slug: 'mana-vault',         colore: 't-navy',       span: 'span-11', disegno: 'carte' },
+  { slug: 'mondi-darte',        colore: 't-orange',     span: 'span-10', disegno: 'matita' },
 ];
 
 interface Tessera {
@@ -52,7 +55,7 @@ const tessere: Tessera[] = LAYOUT
 const slugNoti = new Set(LAYOUT.map((l) => l.slug));
 const extra: Tessera[] = attivita
   .filter((a) => a.slug && !slugNoti.has(a.slug))
-  .map((a) => ({ colore: 't-petrol', span: 'span-3', disegno: '', dato: a }));
+  .map((a) => ({ colore: 't-petrol', span: 'span-15', disegno: '', dato: a }));
 
 const tutte = [...tessere, ...extra];
 
@@ -100,6 +103,11 @@ const DISEGNI: Record<string, string> = {
             )}
             {t.dato.nome_html ? (
               <h2 class="tile__name" set:html={t.dato.nome_html} />
+            ) : t.dato.slug === 'mana-vault' && t.dato.nome.includes(' ') ? (
+              <h2 class="tile__name">
+                {t.dato.nome.split(' ')[0]}<br />
+                {t.dato.nome.split(' ').slice(1).join(' ')}
+              </h2>
             ) : (
               <h2 class="tile__name">{t.dato.nome}</h2>
             )}
@@ -110,7 +118,7 @@ const DISEGNI: Record<string, string> = {
           </a>
         ))}
 
-        <a class="tile t-cta span-3" href="/contatti/">
+        <a class="tile t-cta span-15" href="/contatti/">
           <span class="tile__tag">Hai un'idea?</span>
           <span class="tile__art" aria-hidden="true" set:html={DISEGNI.lampadina} />
           <h2 class="tile__name">Suggeriscine altri</h2>
@@ -188,12 +196,14 @@ const DISEGNI: Record<string, string> = {
   }
   .grid {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(30, 1fr);
     gap: 22px;
   }
-  .span-2 { grid-column: span 2; }
-  .span-3 { grid-column: span 3; }
-  .span-4 { grid-column: span 4; }
+  /* span su griglia a 30 colonne: 5 sotto-colonne = 1 tessera */
+  .span-10 { grid-column: span 10; }  /* 2.0 tessere */
+  .span-11 { grid-column: span 11; }  /* 2.2 tessere */
+  .span-15 { grid-column: span 15; }  /* 3.0 tessere */
+  .span-19 { grid-column: span 19; }  /* 3.8 tessere */
 
   .tile {
     border-radius: 22px;
@@ -225,7 +235,7 @@ const DISEGNI: Record<string, string> = {
 
   .tile__next {
     position: absolute;
-    top: 26px;
+    bottom: 26px;
     left: 36px;
     background: #fff;
     color: var(--cdm-petrol);
@@ -235,7 +245,7 @@ const DISEGNI: Record<string, string> = {
     text-transform: uppercase;
     padding: 7px 12px;
     border-radius: 7px;
-    transform: rotate(6deg);
+    transform: rotate(-6deg);
     box-shadow: 2px 3px 0 rgba(13, 30, 34, 0.3);
     z-index: 3;
   }
@@ -248,7 +258,7 @@ const DISEGNI: Record<string, string> = {
     height: 62px;
     opacity: 0.95;
   }
-  .span-4 .tile__art { width: 82px; height: 82px; }
+  .span-19 .tile__art { width: 82px; height: 82px; }
   .tile__art :global(svg) { display: block; width: 100%; height: 100%; }
 
   .tile__name {
@@ -258,7 +268,12 @@ const DISEGNI: Record<string, string> = {
     margin: auto 0 8px;
   }
   .tile__desc { font-size: 1.05rem; margin: 0; }
-  .tile__go { margin-top: 18px; font-weight: 700; font-size: 1.05rem; }
+  .tile__go {
+    margin-top: 18px;
+    align-self: flex-end;
+    font-weight: 700;
+    font-size: 1.05rem;
+  }
 
   /* ---- varianti colore ---- */
   .t-petrol { background: var(--cdm-petrol); color: #fff; }
@@ -312,6 +327,6 @@ const DISEGNI: Record<string, string> = {
       max-width: 480px;
       margin-inline: auto;
     }
-    .span-2, .span-3, .span-4 { grid-column: auto; }
+    .span-10, .span-11, .span-15, .span-19 { grid-column: auto; }
   }
 </style>
