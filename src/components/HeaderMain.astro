@@ -274,6 +274,14 @@ function attiva(href: string): boolean {
     color: var(--color-accent);
   }
 
+  /* su schermi stretti (cellulare / viewport molto verticale) resta
+     solo l'icona hamburger, senza la scritta "Menu" */
+  @media (max-width: 600px) {
+    .header__toggle-testo {
+      display: none;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .header__nav,
     .header__toggle-icon::before,
