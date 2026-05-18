@@ -16,9 +16,9 @@ const inCorso = progetto.stato_progetto === 'in_corso';
 
 let periodo: string | null = null;
 if (annoInizio && annoFine) {
-  periodo = annoInizio === annoFine ? annoInizio : `${annoInizio} – ${annoFine}`;
+  periodo = annoInizio === annoFine ? annoInizio : `${annoInizio} - ${annoFine}`;
 } else if (annoInizio) {
-  periodo = inCorso ? `${annoInizio} – in corso` : annoInizio;
+  periodo = inCorso ? `${annoInizio} - in corso` : annoInizio;
 } else if (annoFine) {
   periodo = annoFine;
 } else if (inCorso) {

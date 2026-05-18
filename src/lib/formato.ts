@@ -25,5 +25,5 @@ export function formattaPeriodo(
   if (!inizio && fine) return formattaData(fine);
   const stessoGiorno = new Date(inizio!).toDateString() === new Date(fine!).toDateString();
   if (stessoGiorno) return formattaData(inizio);
-  return `${formattaData(inizio)} – ${formattaData(fine)}`;
+  return `${formattaData(inizio)} - ${formattaData(fine)}`;
 }
