@@ -1,6 +1,5 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import IntestazionePagina from '../../components/IntestazionePagina.astro';
 import CardProgetto from '../../components/CardProgetto.astro';
 import { fetchCollection } from '../../lib/directus';
 import type { Progetto } from '../../lib/types';
@@ -12,11 +11,17 @@ const progetti = await fetchCollection<Progetto>('progetti', { sort: 'sort' });
   titolo="Progetti"
   descrizione="I progetti del Crocevia dei Mondi: in corso, conclusi, in vetrina."
 >
-  <IntestazionePagina
-    titolo="Progetti"
-    occhiello="Cosa abbiamo costruito"
-    sommario="Iniziative attive e concluse: dal gioco nelle scuole alle collaborazioni con biblioteche ed enti del terzo settore."
-  />
+  <section class="hero">
+    <span class="pip pip-a"></span><span class="pip pip-b"></span>
+    <span class="pip pip-c"></span><span class="pip pip-d"></span>
+    <div class="hero__in">
+      <h1>Progetti</h1>
+      <p class="lede">
+        Iniziative attive e concluse: dal gioco nelle scuole alle
+        collaborazioni con biblioteche ed enti del terzo settore.
+      </p>
+    </div>
+  </section>
 
   <section class="section">
     <div class="container">
@@ -36,6 +41,48 @@ const progetti = await fetchCollection<Progetto>('progetti', { sort: 'sort' });
 </Layout>
 
 <style>
+  /* ---- hero a blocco pieno ---- */
+  .hero {
+    background: var(--cdm-petrol);
+    color: var(--cdm-cream);
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .hero__in {
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding: 84px var(--gutter) 80px;
+    position: relative;
+    z-index: 2;
+  }
+  .hero h1 {
+    font-size: clamp(2.6rem, 7vw, 5.4rem);
+    font-weight: 800;
+    line-height: 1.02;
+    margin: 0;
+    color: var(--cdm-cream);
+  }
+  .hero .lede {
+    font-size: 1.25rem;
+    margin-top: 18px;
+    max-width: 48ch;
+    color: color-mix(in srgb, var(--cdm-cream) 88%, transparent);
+  }
+
+  /* "galassia" della pagina progetti */
+  .pip { position: absolute; border-radius: 50%; z-index: 1; }
+  .pip-a { width: 130px; height: 130px; background: var(--cdm-orange); top: -44px; right: -36px; }
+  .pip-b {
+    width: 260px; height: 260px; top: -90px; right: 150px;
+    border: 3px solid color-mix(in srgb, var(--cdm-cream) 16%, transparent);
+  }
+  .pip-c { width: 54px; height: 54px; background: var(--cdm-orange-light); top: 128px; right: 96px; }
+  .pip-d {
+    width: 92px; height: 92px; top: 56px; right: 286px;
+    border: 3px solid color-mix(in srgb, var(--cdm-orange-light) 38%, transparent);
+  }
+
   .sezione-vuota {
     color: var(--color-text-muted);
     font-size: var(--text-lg);
@@ -47,8 +94,8 @@ const progetti = await fetchCollection<Progetto>('progetti', { sort: 'sort' });
 
   .griglia-card {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: var(--space-6);
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-8) var(--space-6);
     list-style: none;
     margin: 0;
     padding: 0;

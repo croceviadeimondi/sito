@@ -1,6 +1,5 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import IntestazionePagina from '../../components/IntestazionePagina.astro';
 import CardEvento from '../../components/CardEvento.astro';
 import { fetchCollection } from '../../lib/directus';
 import { immagine, SLOT } from '../../lib/immagini';
@@ -32,13 +31,20 @@ const archivio = tutti
   titolo="Eventi"
   descrizione="Tutti gli appuntamenti del Crocevia dei Mondi: prossimi eventi e archivio storico."
 >
-  <IntestazionePagina
-    titolo="Eventi"
-    occhiello="Calendario"
-    sommario="Demo, tornei, gruppi di lettura, laboratori. Tutti gli appuntamenti aperti al pubblico - passati e futuri."
-  />
+  <section class="hero">
+    <span class="pip pip-a"></span><span class="pip pip-b"></span>
+    <span class="pip pip-c"></span><span class="pip pip-d"></span>
+    <span class="pip pip-e"></span>
+    <div class="hero__in">
+      <h1>Eventi</h1>
+      <p class="lede">
+        Demo, tornei, gruppi di lettura, laboratori. Tutti gli appuntamenti
+        aperti al pubblico, passati e futuri.
+      </p>
+    </div>
+  </section>
 
-  <section class="section section--hero">
+  <section class="corpo">
     <div class="container">
       {fotoHero && (
         <figure class="foto-eventi">
@@ -67,7 +73,7 @@ const archivio = tutti
   </section>
 
   {archivio.length > 0 && (
-    <section class="section section--alt">
+    <section class="section section--blocco">
       <div class="container">
         <h2 class="lista__titolo">Archivio</h2>
         <ul role="list" class="griglia-card">
@@ -78,50 +84,101 @@ const archivio = tutti
       </div>
     </section>
   )}
+
+  <section class="cta-banda">
+    <div class="container cta-banda__in">
+      <p>Vuoi collaborare o proporci un evento?</p>
+      <a class="cta-banda__btn" href="/contatti/">Contattaci →</a>
+    </div>
+  </section>
 </Layout>
 
 <style>
-  .lista__titolo {
-    margin-bottom: var(--space-8);
+  /* ---- hero a blocco pieno ---- */
+  .hero {
+    background: var(--cdm-petrol);
+    color: var(--cdm-cream);
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .hero__in {
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding: 84px var(--gutter) 80px;
+    position: relative;
+    z-index: 2;
+  }
+  .hero h1 {
+    font-size: clamp(2.6rem, 7vw, 5.4rem);
+    font-weight: 800;
+    line-height: 1.02;
+    margin: 0;
+    color: var(--cdm-cream);
+  }
+  .hero .lede {
+    font-size: 1.25rem;
+    margin-top: 18px;
+    max-width: 48ch;
+    color: color-mix(in srgb, var(--cdm-cream) 88%, transparent);
   }
 
-  /* Section dell'hero: niente padding-block, cosi' l'hero sconfina
-     sopra la barra scura del titolo. */
-  .section--hero {
-    padding-block: 0;
+  /* "galassia" della pagina eventi */
+  .pip { position: absolute; border-radius: 50%; z-index: 1; }
+  .pip-a {
+    width: 210px; height: 210px; top: -66px; right: 280px;
+    border: 3px solid color-mix(in srgb, var(--cdm-orange-light) 32%, transparent);
+  }
+  .pip-b { width: 150px; height: 150px; background: var(--cdm-orange); top: 24px; right: -54px; }
+  .pip-c { width: 64px; height: 64px; background: var(--cdm-orange-light); top: 150px; right: 120px; }
+  .pip-d { width: 34px; height: 34px; background: var(--cdm-orange-light); top: 58px; right: 92px; }
+  .pip-e {
+    width: 120px; height: 120px; bottom: -50px; right: 220px;
+    border: 3px solid color-mix(in srgb, var(--cdm-cream) 14%, transparent);
   }
 
+  /* ---- corpo: la foto sconfina sopra l'hero ---- */
+  .corpo {
+    padding-block: 0 var(--space-16);
+    position: relative;
+    z-index: 1;
+  }
   .foto-eventi {
-    margin: calc(-1 * var(--space-8)) 0 var(--space-8);
+    margin: calc(-1 * var(--space-16)) 0 var(--space-8);
   }
-
   .foto-eventi img {
     display: block;
     width: 100%;
     max-height: 380px;
     object-fit: cover;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-lg);
   }
 
   .rimando-attivita {
-    margin: 0 0 var(--space-8);
+    margin: 0 0 var(--space-12);
     padding: var(--space-4) var(--space-6);
-    background: color-mix(in srgb, var(--cdm-orange) 6%, transparent);
-    border-left: 3px solid var(--color-accent);
+    background: color-mix(in srgb, var(--cdm-orange) 8%, transparent);
+    border-left: 4px solid var(--cdm-orange);
     border-radius: 0 var(--radius-md) var(--radius-md) 0;
     color: var(--color-text);
   }
-
   .rimando-attivita a {
-    color: var(--color-accent);
+    color: var(--cdm-orange);
     text-decoration: none;
-    font-weight: 600;
+    font-weight: 700;
     margin-left: var(--space-2);
   }
 
-  .section--alt {
-    background: color-mix(in srgb, var(--cdm-petrol) 6%, var(--color-bg));
+  .lista__titolo {
+    margin-bottom: var(--space-8);
   }
+
+  /* ---- archivio: blocco di colore pieno ---- */
+  .section--blocco {
+    background: var(--cdm-navy);
+    color: #fff;
+  }
+  .section--blocco .lista__titolo { color: #fff; }
 
   .sezione-vuota {
     color: var(--color-text-muted);
@@ -135,9 +192,43 @@ const archivio = tutti
   .griglia-card {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: var(--space-6);
+    gap: var(--space-8) var(--space-6);
     list-style: none;
     margin: 0;
     padding: 0;
   }
+
+  /* fascia CTA di chiusura: si appoggia al footer (margin negativo) */
+  .cta-banda {
+    background: var(--cdm-orange-light);
+    margin-bottom: calc(-1 * var(--space-24));
+  }
+  .cta-banda__in {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: var(--space-4) var(--space-8);
+    padding-block: var(--space-12);
+    text-align: center;
+  }
+  .cta-banda__in p {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.6rem;
+    letter-spacing: -0.02em;
+    color: #3c2113;
+  }
+  .cta-banda__btn {
+    background: var(--cdm-petrol);
+    color: #fff;
+    font-weight: 700;
+    padding: 12px 22px;
+    border-radius: var(--radius-pill);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color 150ms ease;
+  }
+  .cta-banda__btn:hover { background: var(--cdm-navy); }
 </style>

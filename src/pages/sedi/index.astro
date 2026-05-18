@@ -25,7 +25,7 @@ function embedSicuro(url: string | null): string | null {
 >
   <IntestazionePagina
     titolo="Le nostre sedi"
-    occhiello="Dove ci trovi"
+    evidenzia="sedi"
     sommario="I luoghi dove ci riuniamo, dove animiamo le attività e che chiamiamo casa."
   />
 
@@ -101,30 +101,42 @@ function embedSicuro(url: string | null): string | null {
     gap: var(--space-12);
   }
 
+  /* una sola card: testo + mappa dentro. overflow:hidden cosi' la mappa
+     va a filo dei bordi arrotondati senza margini. */
   .sede {
     display: grid;
     grid-template-columns: 1fr;
-    gap: var(--space-6);
-    padding: var(--space-8);
     background: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
+    border-radius: 18px;
+    overflow: hidden;
+  }
+
+  /* solo la parte testuale ha il padding interno; la mappa va a filo */
+  .sede__info {
+    padding: var(--space-8);
   }
 
   @media (min-width: 820px) {
     .sede {
-      grid-template-columns: 1fr 1fr;
-      align-items: start;
+      grid-template-columns: 1fr 1.5fr;
     }
   }
 
+  /* città come adesivo, in cima al testo della card */
   .sede__citta {
-    color: var(--color-accent);
+    display: inline-block;
+    background: var(--cdm-orange);
+    color: #fff;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     font-size: var(--text-sm);
     font-weight: 700;
-    margin: 0;
+    margin: 0 0 var(--space-3);
+    padding: 7px 13px;
+    border-radius: 7px;
+    transform: rotate(-4deg);
+    box-shadow: 2px 3px 0 color-mix(in srgb, var(--cdm-petrol) 45%, transparent);
   }
 
   .sede__nome {
@@ -174,11 +186,10 @@ function embedSicuro(url: string | null): string | null {
     text-decoration: underline;
   }
 
+  /* mappa a filo: riempie la sua cella, gli angoli li clippa la card */
   .sede__mappa {
     width: 100%;
-    aspect-ratio: 6 / 3;
-    border-radius: var(--radius-md);
-    overflow: hidden;
+    min-height: 290px;
     background: color-mix(in srgb, var(--cdm-petrol) 10%, transparent);
   }
 

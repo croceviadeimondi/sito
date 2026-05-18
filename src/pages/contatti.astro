@@ -34,7 +34,7 @@ const gruppi = (impostazioni?.gruppi_chat ?? []).filter((g) => g?.nome && g?.url
   <IntestazionePagina
     titolo="Contatti"
     occhiello="Parliamoci"
-    sommario="Scrivici per proposte, collaborazioni, richieste di attività o per iscriverti come socio."
+    sommario="Scrivici per proposte, collaborazioni, richieste di attività o per tesserarti."
   />
 
   <section class="section section--hero">
@@ -101,10 +101,12 @@ const gruppi = (impostazioni?.gruppi_chat ?? []).filter((g) => g?.nome && g?.url
 </Layout>
 
 <style>
-  /* Section dell'hero: niente padding-block, cosi' l'hero sconfina
-     sopra la barra scura del titolo. */
+  /* Section dell'hero: niente padding-top + z-index, cosi' la foto
+     sconfina sopra la barra del titolo e ci resta davanti. */
   .section--hero {
     padding-block: 0;
+    position: relative;
+    z-index: 1;
   }
 
   .foto-contatti {

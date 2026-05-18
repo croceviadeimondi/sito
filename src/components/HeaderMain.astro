@@ -3,10 +3,11 @@ import { fetchSingleton, assetUrl } from '../lib/directus';
 import type { Impostazioni } from '../lib/types';
 
 interface Props {
+  /** Non più usato: l'header è identico su tutte le pagine. Accettato per
+   *  compatibilità con Layout. */
   grande?: boolean;
 }
 
-const { grande = false } = Astro.props;
 const impostazioni = await fetchSingleton<Impostazioni>('impostazioni');
 const urlLogo = assetUrl(impostazioni?.logo_principale);
 const pathCorrente = Astro.url.pathname.replace(/\/$/, '') || '/';
@@ -27,7 +28,7 @@ function attiva(href: string): boolean {
 }
 ---
 
-<header class:list={['header', { 'header--grande': grande }]} data-grande={grande}>
+<header class="header">
   <div class="container header__inner">
     <a href="/" class="header__brand" aria-label="Crocevia dei Mondi - home">
       {urlLogo ? (
@@ -38,38 +39,38 @@ function attiva(href: string): boolean {
       <span class="header__brand-name">Crocevia dei Mondi</span>
     </a>
 
-    <button
-      class="header__toggle"
-      type="button"
-      aria-label="Apri il menù"
-      aria-expanded="false"
-      aria-controls="menu-principale"
-    >
-      <span class="header__toggle-icon" aria-hidden="true"></span>
-    </button>
-
-    <nav class="header__nav" id="menu-principale" aria-label="Navigazione principale">
-      <ul role="list" class="header__nav-list">
-        {voci.map((voce) => (
-          <li>
-            <a
-              href={voce.href}
-              class:list={['header__link', { 'is-attivo': attiva(voce.href) }]}
-              aria-current={attiva(voce.href) ? 'page' : undefined}
-            >
-              {voce.etichetta}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </nav>
   </div>
+
+  <button
+    class="header__toggle"
+    type="button"
+    aria-expanded="false"
+    aria-controls="menu-principale"
+  >
+    <span class="header__toggle-icon" aria-hidden="true"></span>
+    <span class="header__toggle-testo">Menu</span>
+  </button>
+
+  <nav class="header__nav" id="menu-principale" aria-label="Navigazione principale">
+    <ul role="list" class="header__nav-list">
+      {voci.map((voce) => (
+        <li>
+          <a
+            href={voce.href}
+            class:list={['header__link', { 'is-attivo': attiva(voce.href) }]}
+            aria-current={attiva(voce.href) ? 'page' : undefined}
+          >
+            {voce.etichetta}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
 </header>
 
 <script>
   const header = document.querySelector<HTMLElement>('.header');
   if (header) {
-    // ─── Menù hamburger (mobile) ─────────────────────────────────
     const toggle = header.querySelector<HTMLButtonElement>('.header__toggle');
     const nav = header.querySelector<HTMLElement>('.header__nav');
 
@@ -77,7 +78,6 @@ function attiva(href: string): boolean {
       const setMenu = (aperto: boolean) => {
         header.classList.toggle('menu-aperto', aperto);
         toggle.setAttribute('aria-expanded', String(aperto));
-        toggle.setAttribute('aria-label', aperto ? 'Chiudi il menù' : 'Apri il menù');
       };
       toggle.addEventListener('click', () => {
         setMenu(!header.classList.contains('menu-aperto'));
@@ -90,88 +90,6 @@ function attiva(href: string): boolean {
       });
       nav.querySelectorAll('a').forEach((a) =>
         a.addEventListener('click', () => setMenu(false))
-      );
-    }
-
-    // ─── Header "grande" che si riduce allo scroll (home, desktop) ───
-    if (header.dataset.grande === 'true' && nav) {
-      const brand = header.querySelector<HTMLElement>('.header__brand');
-      const navList = nav.querySelector<HTMLElement>('.header__nav-list');
-      // Isteresi: due soglie distinte impediscono oscillazioni a cavallo
-      // della stessa quota di scroll, che facevano triggerare ripetutamente
-      // il FLIP in entrambe le direzioni.
-      const sogliaInRidotto = 200;
-      const sogliaInGrande = 120;
-      const durata = 350;
-      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-      let ticking = false;
-      let animando = false;
-      let statoRidotto = window.scrollY > sogliaInRidotto;
-      header.classList.toggle('is-ridotto', statoRidotto);
-
-      const aggiorna = () => {
-        ticking = false;
-        if (animando) return;
-        const y = window.scrollY;
-        const dovrebbe = statoRidotto ? y >= sogliaInGrande : y >= sogliaInRidotto;
-        if (statoRidotto === dovrebbe) return;
-
-        if (reduceMotion.matches || !brand || !navList) {
-          statoRidotto = dovrebbe;
-          header.classList.toggle('is-ridotto', dovrebbe);
-          return;
-        }
-
-        // FLIP: misura prima, cambia stato, misura dopo, inverti, anima.
-        // Misuriamo navList (content-width, centrata in grande): misurare nav
-        // darebbe rect a tutta larghezza, facendo apparire le voci da sinistra.
-        const fb = brand.getBoundingClientRect();
-        const fl = navList.getBoundingClientRect();
-
-        statoRidotto = dovrebbe;
-        header.classList.toggle('is-ridotto', dovrebbe);
-
-        const lb = brand.getBoundingClientRect();
-        const ll = navList.getBoundingClientRect();
-
-        animando = true;
-        brand.style.transition = 'none';
-        navList.style.transition = 'none';
-        brand.style.transform = `translate(${fb.left - lb.left}px, ${fb.top - lb.top}px)`;
-        navList.style.transform = `translateX(${fl.left - ll.left}px)`;
-
-        window.requestAnimationFrame(() => {
-          brand.style.transition = `transform ${durata}ms cubic-bezier(0.4, 0, 0.2, 1)`;
-          navList.style.transition = `transform ${durata}ms cubic-bezier(0.4, 0, 0.2, 1)`;
-          brand.style.transform = '';
-          navList.style.transform = '';
-        });
-
-        // Sblocca SOLO al termine dell'animazione (con un piccolo
-        // margine), così scroll molto rapidi non avviano un secondo FLIP
-        // mentre il primo è ancora in corso.
-        window.setTimeout(() => {
-          animando = false;
-          // Re-verifica: se nel frattempo il pubblico stato richiesto è
-          // diverso (utente ha scrollato oltre durante l'animazione),
-          // schedula un nuovo check.
-          if (!ticking) {
-            window.requestAnimationFrame(aggiorna);
-            ticking = true;
-          }
-        }, durata + 30);
-      };
-
-      window.addEventListener(
-        'scroll',
-        () => {
-          if (!ticking) {
-            window.requestAnimationFrame(aggiorna);
-            ticking = true;
-          }
-        },
-        { passive: true }
       );
     }
   }
@@ -187,11 +105,12 @@ function attiva(href: string): boolean {
     backdrop-filter: saturate(180%) blur(8px);
   }
 
+  /* brand centrato, toggle ancorato a destra */
   .header__inner {
+    position: relative;
     display: flex;
+    justify-content: center;
     align-items: center;
-    justify-content: space-between;
-    gap: var(--space-6);
     padding-block: var(--space-4);
   }
 
@@ -207,8 +126,8 @@ function attiva(href: string): boolean {
   .header__brand-mark {
     display: inline-grid;
     place-items: center;
-    width: 2.25rem;
-    height: 2.25rem;
+    width: 2.5rem;
+    height: 2.5rem;
     background: var(--color-accent);
     color: var(--color-on-dark);
     border-radius: var(--radius-pill);
@@ -219,33 +138,132 @@ function attiva(href: string): boolean {
   }
 
   .header__brand-name {
-    font-size: 3rem;
+    font-size: clamp(1.5rem, 5vw, 3rem);
     color: var(--color-accent);
     line-height: 1;
   }
 
   .header__logo {
     display: block;
-    height: 2.5rem;
+    height: clamp(2rem, 5vw, 2.8rem);
     width: auto;
     object-fit: contain;
   }
 
+  /* toggle hamburger: sempre visibile */
+  .header__toggle {
+    position: absolute;
+    right: var(--gutter);
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    height: 2.75rem;
+    padding: 0 var(--space-3);
+    background: transparent;
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius-md);
+    color: var(--color-accent);
+    cursor: pointer;
+  }
+
+  .header__toggle-testo {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: var(--text-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .header__toggle:hover {
+    background: color-mix(in srgb, var(--cdm-orange) 8%, transparent);
+  }
+
+  .header__toggle-icon,
+  .header__toggle-icon::before,
+  .header__toggle-icon::after {
+    display: block;
+    width: 1.25rem;
+    height: 2px;
+    background: currentColor;
+    border-radius: 2px;
+  }
+
+  .header__toggle-icon {
+    position: relative;
+    transition: background-color 150ms ease;
+  }
+
+  .header__toggle-icon::before,
+  .header__toggle-icon::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    transition: transform 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .header__toggle-icon::before { top: -0.4rem; }
+  .header__toggle-icon::after  { top:  0.4rem; }
+
+  .header.menu-aperto .header__toggle-icon {
+    background: transparent;
+  }
+  .header.menu-aperto .header__toggle-icon::before {
+    transform: translateY(0.4rem) rotate(45deg);
+  }
+  .header.menu-aperto .header__toggle-icon::after {
+    transform: translateY(-0.4rem) rotate(-45deg);
+  }
+
+  /* nav: tendina a tutta larghezza sotto l'header */
+  .header__nav {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    padding: var(--space-2) var(--gutter) var(--space-4);
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--cdm-petrol) 12%, transparent);
+
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(-8px);
+    transition:
+      visibility 200ms,
+      opacity 200ms ease,
+      transform 200ms ease;
+  }
+
+  .header.menu-aperto .header__nav {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
+  }
+
   .header__nav-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2) var(--space-6);
+    list-style: none;
     margin: 0;
     padding: 0;
-    list-style: none;
+    display: flex;
+    flex-direction: column;
   }
 
   .header__link {
+    display: block;
     color: var(--color-text);
     text-decoration: none;
-    font-size: var(--text-base);
-    padding-block: var(--space-2);
-    position: relative;
+    font-size: var(--text-lg);
+    font-weight: 600;
+    text-align: right;
+    padding: var(--space-3) var(--space-1);
+    border-bottom: 1px solid var(--color-border);
+    transition: color 120ms ease;
+  }
+
+  .header__nav-list li:last-child .header__link {
+    border-bottom: 0;
   }
 
   .header__link:hover {
@@ -254,172 +272,6 @@ function attiva(href: string): boolean {
 
   .header__link.is-attivo {
     color: var(--color-accent);
-    font-weight: 600;
-  }
-
-  .header__link.is-attivo::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 2px;
-    background: var(--color-accent);
-    border-radius: var(--radius-pill);
-  }
-
-  /* Toggle hamburger: visibile solo da mobile */
-  .header__toggle {
-    display: none;
-  }
-
-  /* Modalità "grande": logo prominente all'apertura della pagina (riga 1)
-     e nav su una propria "barra" sotto (riga 2). Solo desktop. */
-  @media (min-width: 821px) {
-    .header--grande:not(.is-ridotto) .header__inner {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0;
-      padding-block: 0;
-    }
-    .header--grande:not(.is-ridotto) .header__brand {
-      align-self: center;
-      gap: var(--space-4);
-      padding-top: var(--space-12);
-      padding-bottom: var(--space-10);
-    }
-    .header--grande:not(.is-ridotto) .header__brand-mark {
-      width: 5rem;
-      height: 5rem;
-      font-size: var(--text-xl);
-    }
-    .header--grande:not(.is-ridotto) .header__brand-name {
-      font-size: 5rem;
-    }
-    .header--grande:not(.is-ridotto) .header__logo {
-      height: 6rem;
-    }
-    .header--grande:not(.is-ridotto) .header__nav {
-      display: flex;
-      justify-content: center;
-      border-top: 1px solid var(--color-border);
-      padding-block: var(--space-3);
-    }
-    .header--grande:not(.is-ridotto) .header__nav-list {
-      width: max-content;
-    }
-  }
-
-  /* Mobile e schermi stretti: hamburger + nav come dropdown */
-  @media (max-width: 820px) {
-    .header__inner {
-      gap: var(--space-3);
-    }
-
-    .header__brand-name {
-      font-size: var(--text-xl);
-    }
-    .header__logo {
-      height: 2rem;
-    }
-
-    .header__toggle {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 2.75rem;
-      height: 2.75rem;
-      flex-shrink: 0;
-      background: transparent;
-      border: 1px solid var(--color-accent);
-      border-radius: var(--radius-md);
-      color: var(--color-accent);
-      cursor: pointer;
-      padding: 0;
-    }
-
-    .header__toggle:hover {
-      background: color-mix(in srgb, var(--cdm-orange) 8%, transparent);
-    }
-
-    .header__toggle-icon,
-    .header__toggle-icon::before,
-    .header__toggle-icon::after {
-      display: block;
-      width: 1.25rem;
-      height: 2px;
-      background: currentColor;
-      border-radius: 2px;
-    }
-
-    .header__toggle-icon {
-      position: relative;
-      transition: background-color 150ms ease;
-    }
-
-    .header__toggle-icon::before,
-    .header__toggle-icon::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      transition: transform 220ms cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .header__toggle-icon::before { top: -0.4rem; }
-    .header__toggle-icon::after  { top:  0.4rem; }
-
-    .header.menu-aperto .header__toggle-icon {
-      background: transparent;
-    }
-    .header.menu-aperto .header__toggle-icon::before {
-      transform: translateY(0.4rem) rotate(45deg);
-    }
-    .header.menu-aperto .header__toggle-icon::after {
-      transform: translateY(-0.4rem) rotate(-45deg);
-    }
-
-    .header__nav {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      background: var(--color-surface);
-      border-bottom: 1px solid var(--color-border);
-      padding: var(--space-4) var(--gutter);
-      box-shadow: 0 8px 24px color-mix(in srgb, var(--cdm-petrol) 12%, transparent);
-
-      visibility: hidden;
-      opacity: 0;
-      transform: translateY(-8px);
-      transition:
-        visibility 200ms,
-        opacity 200ms ease,
-        transform 200ms ease;
-    }
-
-    .header.menu-aperto .header__nav {
-      visibility: visible;
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .header__nav-list {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0;
-    }
-
-    .header__link {
-      display: block;
-      width: 100%;
-      padding: var(--space-3) 0;
-      font-size: var(--text-lg);
-      border-bottom: 1px solid var(--color-border);
-    }
-
-    .header__link.is-attivo::after {
-      display: none;
-    }
   }
 
   @media (prefers-reduced-motion: reduce) {

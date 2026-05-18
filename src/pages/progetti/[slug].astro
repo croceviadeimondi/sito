@@ -127,15 +127,16 @@ const haDati = Boolean(progetto.luogo || progetto.bando_finanziatore || importoF
 
 <style>
   .dettaglio-intestazione {
-    background:
-      radial-gradient(ellipse at 100% 50%, color-mix(in srgb, var(--cdm-petrol) 30%, transparent), transparent 60%),
-      var(--cdm-petrol);
+    background: var(--cdm-petrol);
     color: var(--color-on-dark);
     padding-block: var(--space-16);
   }
 
   .dettaglio-intestazione h1 {
     margin: var(--space-3) 0 var(--space-2);
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    font-weight: 800;
+    line-height: 1.05;
     color: var(--color-on-dark);
   }
 

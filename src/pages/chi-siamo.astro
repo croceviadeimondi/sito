@@ -1,6 +1,5 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import IntestazionePagina from '../components/IntestazionePagina.astro';
 import { fetchCollection, assetUrl } from '../lib/directus';
 import { immagine, SLOT } from '../lib/immagini';
 import { formattaData } from '../lib/formato';
@@ -43,13 +42,20 @@ function etichettaTipo(tipo: string): string {
   titolo="Chi siamo"
   descrizione="Crocevia dei Mondi APS: chi siamo, la nostra missione e il direttivo."
 >
-  <IntestazionePagina
-    titolo="Chi siamo"
-    occhiello="L'associazione"
-    sommario="Una comunità di persone che costruisce insieme. Il gioco è la nostra lingua, l'inclusione è la nostra pratica."
-  />
+  <section class="hero">
+    <span class="pip pip-a"></span><span class="pip pip-b"></span>
+    <span class="pip pip-c"></span><span class="pip pip-d"></span>
+    <span class="pip pip-e"></span>
+    <div class="hero__in">
+      <h1>Chi siamo</h1>
+      <p class="lede">
+        Una comunità di persone che costruisce insieme. Il gioco è la nostra
+        lingua, l'inclusione è la nostra pratica.
+      </p>
+    </div>
+  </section>
 
-  <section class="section section--hero">
+  <section class="corpo">
     <div class="container container-narrow">
 
       {heroFoto && (
@@ -69,13 +75,12 @@ function etichettaTipo(tipo: string): string {
 
       <hr class="separatore" />
 
-      <h2>I valori che ci tengono insieme</h2>
+      <h2 class="sez-titolo">I valori che ci tengono insieme</h2>
 
-      <article class="valore">
-        <h3>1. Comunità consapevole e creativa</h3>
+      <article class="valore valore--orange">
+        <h3>Comunità consapevole e creativa</h3>
         <p>
-          Non crediamo in organizzazioni piatte che fanno progetti per le
-          persone. Crediamo in <strong>comunità che si costruiscono
+          Crediamo in <strong>comunità che si costruiscono
           insieme</strong>. Una comunità consapevole conosce i suoi valori, i
           suoi confini, le sue responsabilità. Una comunità creativa genera
           idee, sperimenta, rischia, impara dagli errori. È lo spazio dove le
@@ -84,9 +89,8 @@ function etichettaTipo(tipo: string): string {
         </p>
       </article>
 
-      <article class="valore">
-        <h3>2. Il gioco come lingua della comunità</h3>
-        <p class="valore__lead"><strong>Come accendiamo la creatività.</strong></p>
+      <article class="valore valore--petrol">
+        <h3>Il gioco come lingua della comunità</h3>
         <p>
           Il gioco non è evasione. È il mezzo attraverso cui una comunità
           <strong>pensa insieme, immagina insieme, crea insieme</strong>.
@@ -111,9 +115,8 @@ function etichettaTipo(tipo: string): string {
         </figure>
       )}
 
-      <article class="valore">
-        <h3>3. Orizzontalità radicale e autonomia diffusa</h3>
-        <p class="valore__lead"><strong>Come la comunità decide.</strong></p>
+      <article class="valore valore--cobalt">
+        <h3>Orizzontalità radicale e autonomia diffusa</h3>
         <p>
           Rifiutiamo le gerarchie come forma di controllo. Non perché neghiamo
           che alcune persone abbiano più esperienza di altre, ma l'esperienza
@@ -135,9 +138,8 @@ function etichettaTipo(tipo: string): string {
         </p>
       </article>
 
-      <article class="valore">
-        <h3>4. Inclusione come pratica, non dichiarazione</h3>
-        <p class="valore__lead"><strong>Chi entra nella comunità.</strong></p>
+      <article class="valore valore--vermillion">
+        <h3>Inclusione come pratica, non dichiarazione</h3>
         <p>
           La diversità è il fondamento della nostra creatività. Ogni
           differenza di background, abilità, prospettiva, identità o lingua,
@@ -159,7 +161,7 @@ function etichettaTipo(tipo: string): string {
         gerarchie, e nessuno viene lasciato fuori.
       </blockquote>
 
-      <h2>Letteralmente noi</h2>
+      <h2 class="sez-titolo">Letteralmente noi</h2>
       {direttivo.length === 0 ? (
         <p>
           Le facce dietro all'associazione: direttivo, soci, collaboratori.
@@ -197,7 +199,7 @@ function etichettaTipo(tipo: string): string {
   </section>
 
   {mediaRecenti.length > 0 && (
-    <section class="section section--alt">
+    <section class="section section--blocco">
       <div class="container container-narrow">
         <header class="parlano__head">
           <h2>Parlano di noi</h2>
@@ -224,25 +226,81 @@ function etichettaTipo(tipo: string): string {
       </div>
     </section>
   )}
+
+  <section class="recensisci">
+    <div class="container recensisci__in">
+      <p>E tu, che dici di noi?</p>
+      <a class="recensisci__btn" href="/sedi/">Recensisci una delle nostre sedi →</a>
+    </div>
+  </section>
 </Layout>
 
 <style>
-  /* Section dell'hero: niente padding-block, cosi' l'hero (margine
-     negativo) sconfina sopra la barra scura del titolo. */
-  .section--hero {
-    padding-block: 0;
+  /* ---- hero a blocco pieno ---- */
+  .hero {
+    background: var(--cdm-petrol);
+    color: var(--cdm-cream);
+    position: relative;
+    overflow: hidden;
+    /* contiene gli z-index interni: cosi' la foto del corpo, tirata su
+       col margine negativo, resta sopra l'hero invece che dietro */
+    isolation: isolate;
+  }
+  .hero__in {
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding: 84px var(--gutter) 80px;
+    position: relative;
+    z-index: 2;
+  }
+  .hero h1 {
+    font-size: clamp(2.6rem, 7vw, 5.4rem);
+    font-weight: 800;
+    line-height: 1.02;
+    margin: 0;
+    color: var(--cdm-cream);
+  }
+  .hero .lede {
+    font-size: 1.25rem;
+    margin-top: 18px;
+    max-width: 48ch;
+    color: color-mix(in srgb, var(--cdm-cream) 88%, transparent);
+  }
+  /* "galassia" della pagina chi-siamo: una sua disposizione di pianeti */
+  .pip { position: absolute; border-radius: 50%; z-index: 1; }
+  .pip-a {
+    width: 300px; height: 300px; top: -120px; right: -60px;
+    border: 3px solid color-mix(in srgb, var(--cdm-cream) 16%, transparent);
+  }
+  .pip-b { width: 112px; height: 112px; background: var(--cdm-orange); top: 64px; right: 78px; }
+  .pip-c { width: 38px; height: 38px; background: var(--cdm-orange-light); top: 52px; right: 232px; }
+  .pip-d {
+    width: 168px; height: 168px; top: 150px; right: 140px;
+    border: 3px solid color-mix(in srgb, var(--cdm-orange-light) 38%, transparent);
+  }
+  .pip-e {
+    width: 62px; height: 62px; bottom: 26px; right: 250px;
+    background: color-mix(in srgb, var(--cdm-orange-light) 75%, transparent);
+  }
+
+  /* ---- corpo ---- */
+  /* padding-top a 0 + z-index: la foto hero sconfina sopra la barra del
+     titolo e ci resta davanti (l'hero e' posizionato, dipingerebbe dopo) */
+  .corpo {
+    padding-block: 0 var(--space-16);
+    position: relative;
+    z-index: 1;
   }
 
   .hero-foto {
-    margin: calc(-1 * var(--space-8)) 0 var(--space-8);
+    margin: calc(-1 * var(--space-16)) 0 var(--space-8);
   }
-
   .hero-foto img {
     display: block;
     width: 100%;
-    max-height: 340px;
+    max-height: 360px;
     object-fit: cover;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-lg);
   }
 
   .intro {
@@ -253,100 +311,93 @@ function etichettaTipo(tipo: string): string {
 
   .separatore {
     border: 0;
-    border-top: 2px solid var(--color-accent);
+    border-top: 3px solid var(--cdm-orange);
     width: 4rem;
     margin: var(--space-12) 0;
   }
 
-  h2 {
+  .sez-titolo {
     margin-top: var(--space-12);
-    margin-bottom: var(--space-6);
+    margin-bottom: var(--space-8);
   }
 
+  /* ---- valori: ognuno con un numero e un colore del logo ---- */
+  .valore {
+    border-left: 5px solid var(--c);
+    padding-left: var(--space-6);
+    margin-bottom: var(--space-12);
+  }
+  .valore--orange { --c: var(--cdm-orange); }
+  .valore--petrol { --c: var(--cdm-petrol); }
+  .valore--cobalt { --c: var(--cdm-cobalt); }
+  .valore--vermillion { --c: var(--cdm-vermillion); }
+
+  .valore h3 {
+    font-size: var(--text-2xl);
+    margin: 0 0 var(--space-3);
+    color: var(--c);
+  }
+  .valore p {
+    margin-block: var(--space-3);
+    line-height: 1.7;
+  }
   .foto-manifesto {
     margin: var(--space-12) 0;
   }
-
   .foto-manifesto img {
     display: block;
     width: 100%;
     max-height: 380px;
     object-fit: cover;
-    border-radius: var(--radius-md);
-  }
-
-  .valore {
-    margin-bottom: var(--space-10);
-  }
-
-  .valore h3 {
-    margin: 0 0 var(--space-3);
-    font-size: var(--text-xl);
-  }
-
-  .valore p {
-    margin-block: var(--space-3);
-    line-height: 1.7;
-  }
-
-  .valore__lead {
-    font-size: var(--text-base);
-    color: var(--color-accent);
-    margin-block: var(--space-2) var(--space-4) !important;
+    border-radius: var(--radius-lg);
   }
 
   .chiusura {
     margin: var(--space-12) 0;
-    padding: var(--space-6) var(--space-8);
-    border-left: 3px solid var(--color-accent);
-    background: color-mix(in srgb, var(--cdm-orange) 6%, transparent);
-    border-radius: 0 var(--radius-md) var(--radius-md) 0;
-    font-size: var(--text-lg);
-    line-height: 1.6;
-    font-style: italic;
-    color: var(--color-text);
+    padding: var(--space-8);
+    border-radius: var(--radius-lg);
+    background: var(--cdm-orange);
+    color: #fff;
+    font-size: var(--text-xl);
+    font-weight: 600;
+    line-height: 1.4;
   }
 
+  /* ---- direttivo: carosello orizzontale che sfora ---- */
   .direttivo {
     list-style: none;
-    /* Sfora la container-narrow fino al bordo del viewport, prima card
-       allineata al gutter di pagina (più a sinistra del testo della colonna). */
     margin-block: 0;
     margin-inline: calc(50% - 50vw);
     padding-block: 0 var(--space-3);
-    padding-inline-start: var(--gutter);
-    padding-inline-end: var(--gutter);
+    padding-inline: var(--gutter);
     scroll-padding-inline-start: var(--gutter);
     display: flex;
     gap: var(--space-4);
     overflow-x: auto;
     scroll-snap-type: x proximity;
     scrollbar-width: thin;
-    scrollbar-color: var(--color-accent) transparent;
+    scrollbar-color: var(--cdm-orange) transparent;
     -webkit-overflow-scrolling: touch;
   }
-
   .direttivo::-webkit-scrollbar { height: 8px; }
   .direttivo::-webkit-scrollbar-thumb {
-    background: var(--color-accent);
+    background: var(--cdm-orange);
     border-radius: var(--radius-pill);
   }
 
   .membro {
-    /* 4 card visibili: (100vw - 2 gutter - 3 gap) / 4, con un minimo per mobile */
     flex: 0 0 max(170px, calc((100vw - 2 * var(--gutter) - 3 * var(--space-4)) / 4));
     scroll-snap-align: start;
     padding: var(--space-6);
     background: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
+    border-radius: 18px;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
     gap: var(--space-2);
   }
-
   .membro__foto {
     width: 6rem;
     height: 6rem;
@@ -357,44 +408,33 @@ function etichettaTipo(tipo: string): string {
     place-items: center;
     margin-bottom: var(--space-2);
   }
-
-  .membro__foto img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
+  .membro__foto img { width: 100%; height: 100%; object-fit: cover; }
   .membro__iniziali {
-    font-family: var(--font-body);
-    font-weight: 700;
+    font-family: var(--font-heading);
+    font-weight: 800;
     font-size: var(--text-2xl);
-    color: var(--color-accent);
-    letter-spacing: 0.04em;
+    color: var(--cdm-orange);
   }
-
   .membro__ruolo {
     margin: 0;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     font-size: var(--text-sm);
     font-weight: 700;
-    color: var(--color-accent);
+    color: var(--cdm-orange);
   }
-
   .membro__nickname {
     margin: var(--space-1) 0 0;
     font-size: 1rem;
     font-weight: 700;
     line-height: 1.2;
   }
-
   .membro__nome {
     margin: 0;
     font-size: var(--text-sm);
     font-weight: 400;
     color: var(--color-text-muted);
   }
-
   .membro__bio {
     margin: var(--space-3) 0 0;
     color: var(--color-text-muted);
@@ -402,10 +442,11 @@ function etichettaTipo(tipo: string): string {
     line-height: 1.5;
   }
 
-  .section--alt {
-    background: color-mix(in srgb, var(--cdm-petrol) 6%, var(--color-bg));
+  /* ---- parlano di noi: blocco di colore pieno ---- */
+  .section--blocco {
+    background: var(--cdm-navy);
+    color: #fff;
   }
-
   .parlano__head {
     display: flex;
     align-items: baseline;
@@ -414,17 +455,13 @@ function etichettaTipo(tipo: string): string {
     gap: var(--space-4);
     margin-bottom: var(--space-6);
   }
-
-  .parlano__head h2 {
-    margin: 0;
-  }
-
+  .parlano__head h2 { margin: 0; color: #fff; }
   .parlano__link {
     text-decoration: none;
-    color: var(--color-accent);
-    font-weight: 600;
+    color: var(--cdm-orange-light);
+    font-weight: 700;
+    white-space: nowrap;
   }
-
   .parlano {
     list-style: none;
     margin: 0;
@@ -433,22 +470,16 @@ function etichettaTipo(tipo: string): string {
     flex-direction: column;
     gap: var(--space-3);
   }
-
   .parlano__voce {
     display: block;
     padding: var(--space-4) var(--space-6);
     background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
+    border-radius: 14px;
     text-decoration: none;
     color: var(--color-text);
-    transition: border-color 150ms ease;
+    transition: transform 150ms ease;
   }
-
-  .parlano__voce:hover {
-    border-color: var(--color-accent);
-  }
-
+  .parlano__voce:hover { transform: translateY(-3px); }
   .parlano__meta {
     display: flex;
     flex-wrap: wrap;
@@ -458,30 +489,51 @@ function etichettaTipo(tipo: string): string {
     color: var(--color-text-muted);
     margin-bottom: var(--space-1);
   }
-
   .parlano__tipo {
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    font-weight: 600;
-    color: var(--color-accent);
+    font-weight: 700;
+    color: var(--cdm-orange);
   }
+  .parlano__fonte { font-weight: 600; color: var(--color-text); }
+  .parlano__data { margin-left: auto; }
+  .parlano__titolo { font-weight: 500; }
 
-  .parlano__fonte {
-    font-weight: 600;
-    color: var(--color-text);
+  /* ---- CTA recensioni: fascia di chiusura appoggiata al footer ---- */
+  .recensisci {
+    background: var(--cdm-orange-light);
+    margin-bottom: calc(-1 * var(--space-24));
   }
-
-  .parlano__data {
-    margin-left: auto;
+  .recensisci__in {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: var(--space-4) var(--space-8);
+    padding-block: var(--space-12);
+    text-align: center;
   }
-
-  .parlano__titolo {
-    font-weight: 500;
+  .recensisci__in p {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.6rem;
+    letter-spacing: -0.02em;
+    color: #3c2113;
   }
+  .recensisci__btn {
+    background: var(--cdm-petrol);
+    color: #fff;
+    font-weight: 700;
+    padding: 12px 22px;
+    border-radius: var(--radius-pill);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color 150ms ease;
+  }
+  .recensisci__btn:hover { background: var(--cdm-navy); }
 
   @media (max-width: 540px) {
-    .parlano__data {
-      margin-left: 0;
-    }
+    .parlano__data { margin-left: 0; }
   }
 </style>

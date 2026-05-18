@@ -1,6 +1,5 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import IntestazionePagina from '../components/IntestazionePagina.astro';
 import { fetchSingleton } from '../lib/directus';
 import type { Impostazioni } from '../lib/types';
 
@@ -16,35 +15,37 @@ const messaggio = impostazioni?.messaggio_donazioni ?? null;
   titolo="Sostienici"
   descrizione="Come sostenere il Crocevia dei Mondi APS: 5x1000, donazioni, tesseramento."
 >
-  <IntestazionePagina
-    titolo="Sostienici"
-    occhiello="Stai con noi"
-    sommario="Le nostre attività esistono e continuano a migliorare le nostre città grazie a chi crede in noi e nei nostri spazi. Ecco come potresti aiutarci anche tu."
-  />
+  <section class="hero">
+    <span class="pip pip-a"></span><span class="pip pip-b"></span>
+    <span class="pip pip-c"></span><span class="pip pip-d"></span>
+    <div class="hero__in">
+      <h1>Sostienici</h1>
+      <p class="lede">
+        Le nostre attività esistono e continuano a migliorare le nostre città
+        grazie a chi crede in noi e nei nostri spazi. Ecco come potresti
+        aiutarci anche tu.
+      </p>
+    </div>
+  </section>
 
   <section class="section">
     <div class="container">
-
-      {messaggio && (
-        <p class="messaggio-donazioni">{messaggio}</p>
-      )}
+      {messaggio && <p class="messaggio">{messaggio}</p>}
 
       <div class="modi">
 
-        <article class="modo">
+        <article class="modo modo--socio span-6">
           <h2>Diventa socio</h2>
           <p>
             Il modo migliore per sostenerci è esserci in prima fila. Le cose
             da fare sono molte e le competenze che ci mancano sono spesso
-            quelle che tu hai. Tesserarsi è semplice, e ti garantisce
-            benefit anche fuori dalle nostre sedi!
+            quelle che tu hai. Tesserarsi è semplice, e ti garantisce benefit
+            anche fuori dalle nostre sedi!
           </p>
-          <a class="bottone bottone--ghost" href="/tesserati/">
-            Compila il modulo
-          </a>
+          <a class="modo__btn" href="/tesserati/">Compila il modulo →</a>
         </article>
 
-        <article class="modo">
+        <article class="modo modo--dona span-3">
           <h2>Fai una donazione</h2>
           <p>
             Anche una piccola donazione una tantum può aiutare a coprire i
@@ -53,29 +54,27 @@ const messaggio = impostazioni?.messaggio_donazioni ?? null;
           </p>
 
           {iban && (
-            <div class="modo__evidenza">
-              <span class="modo__etichetta">Bonifico bancario</span>
+            <div class="evidenza">
+              <span class="evidenza__etichetta">Bonifico bancario</span>
               <code>{iban}</code>
-              {intestatario && <small class="modo__intestatario">Intestato a: {intestatario}</small>}
+              {intestatario && (
+                <small class="evidenza__intestatario">Intestato a: {intestatario}</small>
+              )}
             </div>
           )}
 
           {satispayUrl && (
-            <p class="modo__alt-pay">
-              <a class="bottone bottone--ghost" href={satispayUrl} rel="noopener" target="_blank">
-                Dona con Satispay
-              </a>
-            </p>
+            <a class="modo__btn" href={satispayUrl} rel="noopener" target="_blank">
+              Dona con Satispay →
+            </a>
           )}
 
           {!iban && !satispayUrl && (
-            <p class="modo__nota">
-              Le modalità saranno pubblicate qui a breve.
-            </p>
+            <p class="nota">Le modalità saranno pubblicate qui a breve.</p>
           )}
         </article>
 
-        <article class="modo">
+        <article class="modo modo--cinque span-3">
           <h2>Destina il 5×1000</h2>
           <p>
             Nella dichiarazione dei redditi, alla casella
@@ -83,12 +82,12 @@ const messaggio = impostazioni?.messaggio_donazioni ?? null;
             firma e indica il nostro codice fiscale.
           </p>
           {codiceFiscale ? (
-            <p class="modo__evidenza">
-              <span class="modo__etichetta">Codice fiscale</span>
+            <div class="evidenza">
+              <span class="evidenza__etichetta">Codice fiscale</span>
               <code>{codiceFiscale}</code>
-            </p>
+            </div>
           ) : (
-            <p class="modo__nota">Il codice fiscale sarà pubblicato a breve.</p>
+            <p class="nota">Il codice fiscale sarà pubblicato a breve.</p>
           )}
         </article>
 
@@ -98,89 +97,136 @@ const messaggio = impostazioni?.messaggio_donazioni ?? null;
 </Layout>
 
 <style>
-  .messaggio-donazioni {
+  /* ---- hero a blocco pieno ---- */
+  .hero {
+    background: var(--cdm-petrol);
+    color: var(--cdm-cream);
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .hero__in {
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding: 84px var(--gutter) 80px;
+    position: relative;
+    z-index: 2;
+  }
+  .hero h1 {
+    font-size: clamp(2.6rem, 7vw, 5.4rem);
+    font-weight: 800;
+    line-height: 1.02;
+    margin: 0;
+    color: var(--cdm-cream);
+  }
+  .hero .lede {
+    font-size: 1.25rem;
+    margin-top: 18px;
+    max-width: 52ch;
+    color: color-mix(in srgb, var(--cdm-cream) 88%, transparent);
+  }
+
+  /* "galassia" della pagina sostienici */
+  .pip { position: absolute; border-radius: 50%; z-index: 1; }
+  .pip-a { width: 90px; height: 90px; background: var(--cdm-orange); top: 48px; right: 64px; }
+  .pip-b {
+    width: 230px; height: 230px; top: -80px; right: 170px;
+    border: 3px solid color-mix(in srgb, var(--cdm-orange-light) 34%, transparent);
+  }
+  .pip-c {
+    width: 150px; height: 150px; top: 124px; right: -52px;
+    background: color-mix(in srgb, var(--cdm-cobalt) 85%, transparent);
+  }
+  .pip-d { width: 44px; height: 44px; background: var(--cdm-orange-light); top: 172px; right: 214px; }
+
+  .messaggio {
     max-width: 60ch;
     margin: 0 auto var(--space-12);
     font-size: var(--text-lg);
     text-align: center;
-    color: var(--color-text);
   }
 
+  /* ---- tessere ---- */
   .modi {
     display: grid;
-    gap: var(--space-8);
-    /* Colonna singola di default: centrata e non troppo larga. */
-    grid-template-columns: 1fr;
-    max-width: 480px;
-    margin-inline: auto;
+    grid-template-columns: repeat(6, 1fr);
+    gap: var(--space-6);
   }
+  .span-6 { grid-column: span 6; }
+  .span-3 { grid-column: span 3; }
 
   .modo {
+    border-radius: 22px;
     padding: var(--space-8);
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    position: relative;
+    color: #fff;
     display: flex;
     flex-direction: column;
-    gap: var(--space-3);
+    gap: var(--space-4);
   }
-
-  .modo > :last-child {
-    margin-top: auto;
-  }
+  .modo--socio { background: var(--cdm-cobalt); }
+  .modo--dona { background: var(--cdm-orange); }
+  .modo--cinque { background: var(--cdm-navy); }
 
   .modo h2 {
     margin: 0;
     font-size: var(--text-2xl);
   }
+  .modo p {
+    margin: 0;
+    max-width: 58ch;
+  }
+  .modo em { font-style: italic; }
+  /* allinea in basso l'ultimo elemento (CTA/box) cosi' le tessere affiancate combaciano */
+  .modo > :last-child { margin-top: auto; }
 
-  .modo__evidenza {
-    margin-top: var(--space-3);
+  .modo__btn {
+    align-self: flex-start;
+    background: #fff;
+    color: var(--cdm-petrol);
+    font-weight: 700;
+    padding: 11px 20px;
+    border-radius: var(--radius-pill);
+    text-decoration: none;
+    transition: transform 150ms ease;
+  }
+  .modo__btn:hover { transform: translateY(-2px); }
+
+  .evidenza {
+    background: rgba(255, 255, 255, 0.14);
+    border-radius: 12px;
     padding: var(--space-4);
-    background: color-mix(in srgb, var(--cdm-orange) 8%, transparent);
-    border-radius: var(--radius-md);
     display: flex;
     flex-direction: column;
     gap: var(--space-1);
   }
-
-  .modo__etichetta {
+  .evidenza__etichetta {
     text-transform: uppercase;
     letter-spacing: 0.08em;
     font-size: var(--text-sm);
-    color: var(--color-text-muted);
+    color: rgba(255, 255, 255, 0.7);
   }
-
-  .modo__evidenza code {
+  .evidenza code {
     font-size: var(--text-lg);
     font-weight: 700;
     letter-spacing: 0.04em;
     font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
     word-break: break-all;
   }
-
-  .modo__intestatario {
-    color: var(--color-text-muted);
+  .evidenza__intestatario {
+    color: rgba(255, 255, 255, 0.75);
     font-style: italic;
     font-size: var(--text-sm);
-    margin-top: var(--space-1);
   }
 
-  .modo__alt-pay {
+  .nota {
     margin: 0;
-  }
-
-  .modo__nota {
-    color: var(--color-text-muted);
+    color: rgba(255, 255, 255, 0.8);
     font-style: italic;
   }
 
-  /* Tre colonne da 820px in su: sotto, una sola colonna verticale. */
-  @media (min-width: 820px) {
-    .modi {
-      max-width: none;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
+  /* sotto gli 820px: una colonna sola */
+  @media (max-width: 820px) {
+    .modi { grid-template-columns: 1fr; }
+    .span-6, .span-3 { grid-column: auto; }
   }
 </style>

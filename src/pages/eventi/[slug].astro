@@ -77,15 +77,16 @@ const urlImmagine = assetUrl(evento.locandina);
 
 <style>
   .dettaglio-intestazione {
-    background:
-      radial-gradient(ellipse at 100% 50%, color-mix(in srgb, var(--cdm-orange) 18%, transparent), transparent 60%),
-      var(--cdm-petrol);
+    background: var(--cdm-petrol);
     color: var(--color-on-dark);
     padding-block: var(--space-16);
   }
 
   .dettaglio-intestazione h1 {
     margin: var(--space-3) 0 var(--space-4);
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    font-weight: 800;
+    line-height: 1.05;
     color: var(--color-on-dark);
   }
 
@@ -128,15 +129,16 @@ const urlImmagine = assetUrl(evento.locandina);
 
   .ospiti {
     margin-top: var(--space-12);
-    padding: var(--space-6);
-    background: color-mix(in srgb, var(--cdm-petrol) 5%, var(--color-bg));
-    border-left: 3px solid var(--color-accent);
-    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    padding: var(--space-8);
+    background: var(--cdm-navy);
+    color: #fff;
+    border-radius: var(--radius-lg);
   }
 
   .ospiti h2 {
-    margin: 0 0 var(--space-2);
+    margin: 0 0 var(--space-3);
     font-size: var(--text-xl);
+    color: #fff;
   }
 
   .rt :global(p) { margin-block: var(--space-4); }

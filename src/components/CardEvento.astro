@@ -18,15 +18,15 @@ const href = slugAtt ? `/attivita/${slugAtt}/` : `/eventi/${evento.slug}/`;
 ---
 
 <a href={href} class="card-evento">
+  <span class="card-evento__data">
+    <time datetime={evento.data_inizio}>{formattaData(evento.data_inizio)}</time>
+  </span>
   {urlImmagine && (
     <div class="card-evento__media">
       <img src={urlImmagine} alt={`Locandina di ${evento.titolo}`} loading="lazy" />
     </div>
   )}
   <div class="card-evento__corpo">
-    <time class="card-evento__data" datetime={evento.data_inizio}>
-      {formattaData(evento.data_inizio)}
-    </time>
     <h3 class="card-evento__titolo">{evento.titolo}</h3>
     {evento.luogo_libero && (
       <p class="card-evento__luogo">{evento.luogo_libero}</p>
@@ -39,27 +39,49 @@ const href = slugAtt ? `/attivita/${slugAtt}/` : `/eventi/${evento.slug}/`;
 
 <style>
   .card-evento {
+    position: relative;
     display: flex;
     flex-direction: column;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
+    border-radius: 18px;
+    padding: 14px 14px 22px;
     text-decoration: none;
     color: var(--color-text);
-    overflow: hidden;
-    transition: border-color 150ms ease, transform 150ms ease;
     height: 100%;
+    transition: transform 150ms ease, border-color 150ms ease;
   }
 
   .card-evento:hover {
-    border-color: var(--color-accent);
-    transform: translateY(-2px);
+    transform: translateY(-5px);
+    border-color: var(--cdm-orange);
+  }
+
+  /* Data come adesivo: angolo in basso a destra, cosi' non copre il
+     titolo sulle card senza immagine */
+  .card-evento__data {
+    position: absolute;
+    bottom: -12px;
+    right: 20px;
+    z-index: 2;
+    background: var(--cdm-petrol);
+    color: #fff;
+    font-size: var(--text-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 7px 12px;
+    border-radius: 7px;
+    transform: rotate(3deg);
+    box-shadow: 2px 3px 0 color-mix(in srgb, var(--cdm-navy) 55%, transparent);
   }
 
   .card-evento__media {
     aspect-ratio: 16 / 9;
+    border-radius: 11px;
     overflow: hidden;
     background: color-mix(in srgb, var(--cdm-petrol) 10%, transparent);
+    margin-bottom: var(--space-4);
   }
 
   .card-evento__media img {
@@ -69,19 +91,11 @@ const href = slugAtt ? `/attivita/${slugAtt}/` : `/eventi/${evento.slug}/`;
   }
 
   .card-evento__corpo {
-    padding: var(--space-6);
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
+    padding-inline: var(--space-2);
     flex: 1;
-  }
-
-  .card-evento__data {
-    font-size: var(--text-sm);
-    color: var(--color-accent);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
   }
 
   .card-evento__titolo {
@@ -96,6 +110,6 @@ const href = slugAtt ? `/attivita/${slugAtt}/` : `/eventi/${evento.slug}/`;
   }
 
   .card-evento__descrizione {
-    margin: var(--space-2) 0 0;
+    margin: var(--space-1) 0 0;
   }
 </style>

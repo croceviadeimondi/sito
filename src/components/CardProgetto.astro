@@ -27,13 +27,13 @@ if (annoInizio && annoFine) {
 ---
 
 <a href={`/progetti/${progetto.slug}/`} class="card-progetto">
+  {periodo && <span class="card-progetto__periodo">{periodo}</span>}
   {urlImmagine && (
     <div class="card-progetto__media">
       <img src={urlImmagine} alt={`Immagine del progetto ${progetto.titolo}`} loading="lazy" />
     </div>
   )}
   <div class="card-progetto__corpo">
-    {periodo && <p class="card-progetto__periodo">{periodo}</p>}
     <h3 class="card-progetto__titolo">{progetto.titolo}</h3>
     <p class="card-progetto__descrizione">{progetto.descrizione_breve}</p>
   </div>
@@ -41,27 +41,49 @@ if (annoInizio && annoFine) {
 
 <style>
   .card-progetto {
+    position: relative;
     display: flex;
     flex-direction: column;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
+    border-radius: 18px;
+    padding: 14px 14px 22px;
     text-decoration: none;
     color: var(--color-text);
-    overflow: hidden;
-    transition: border-color 150ms ease, transform 150ms ease;
     height: 100%;
+    transition: transform 150ms ease, border-color 150ms ease;
   }
 
   .card-progetto:hover {
-    border-color: var(--color-accent);
-    transform: translateY(-2px);
+    transform: translateY(-5px);
+    border-color: var(--cdm-orange);
+  }
+
+  /* Periodo come adesivo: angolo in basso a destra, cosi' non copre il
+     titolo sulle card senza immagine */
+  .card-progetto__periodo {
+    position: absolute;
+    bottom: -12px;
+    right: 20px;
+    z-index: 2;
+    background: var(--cdm-petrol);
+    color: #fff;
+    font-size: var(--text-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 7px 12px;
+    border-radius: 7px;
+    transform: rotate(3deg);
+    box-shadow: 2px 3px 0 color-mix(in srgb, var(--cdm-navy) 55%, transparent);
   }
 
   .card-progetto__media {
     aspect-ratio: 4 / 3;
+    border-radius: 11px;
     overflow: hidden;
     background: color-mix(in srgb, var(--cdm-petrol) 15%, transparent);
+    margin-bottom: var(--space-4);
   }
 
   .card-progetto__media img {
@@ -71,20 +93,11 @@ if (annoInizio && annoFine) {
   }
 
   .card-progetto__corpo {
-    padding: var(--space-6);
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
+    padding-inline: var(--space-2);
     flex: 1;
-  }
-
-  .card-progetto__periodo {
-    font-size: var(--text-sm);
-    color: var(--color-accent);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin: 0;
   }
 
   .card-progetto__titolo {

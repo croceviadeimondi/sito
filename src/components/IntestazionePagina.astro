@@ -1,53 +1,107 @@
 ---
 interface Props {
   titolo: string;
+  /** Accettato per compatibilità: il nuovo hero non mostra l'occhiello. */
   occhiello?: string;
   sommario?: string;
+  /** Parola del titolo da evidenziare in arancio. */
+  evidenzia?: string;
+  /** Link "torna indietro" mostrato sopra il titolo. */
+  breadcrumb?: { href: string; etichetta: string };
 }
 
-const { titolo, occhiello, sommario } = Astro.props;
+const { titolo, sommario, evidenzia, breadcrumb } = Astro.props;
+const titoloHtml =
+  evidenzia && titolo.includes(evidenzia)
+    ? titolo.replace(evidenzia, `<span class="hl">${evidenzia}</span>`)
+    : null;
+
+// "Galassia" diversa per pagina: la variante è derivata dal titolo, così
+// ogni pagina ha la sua disposizione di pianeti senza doverla passare a mano.
+const sommaTitolo = [...titolo].reduce((s, c) => s + c.charCodeAt(0), 0);
+const variante = (sommaTitolo % 4) + 1;
 ---
 
-<section class="intestazione-pagina">
-  <div class="container intestazione-pagina__inner">
-    {occhiello && <p class="intestazione-pagina__occhiello">{occhiello}</p>}
-    <h1 class="intestazione-pagina__titolo">{titolo}</h1>
-    {sommario && <p class="intestazione-pagina__sommario">{sommario}</p>}
+<section class:list={['hero', `hero--v${variante}`]}>
+  <span class="pip pip-a"></span><span class="pip pip-b"></span>
+  <span class="pip pip-c"></span><span class="pip pip-d"></span>
+  <div class="container hero__in">
+    {breadcrumb && (
+      <a class="hero__breadcrumb" href={breadcrumb.href}>{breadcrumb.etichetta}</a>
+    )}
+    {titoloHtml ? <h1 set:html={titoloHtml} /> : <h1>{titolo}</h1>}
+    {sommario && <p class="lede">{sommario}</p>}
   </div>
 </section>
 
 <style>
-  .intestazione-pagina {
-    background:
-      radial-gradient(ellipse at 100% 50%, color-mix(in srgb, var(--cdm-orange) 18%, transparent), transparent 60%),
-      var(--cdm-petrol);
-    color: var(--color-on-dark);
-    /* Top dimezzato rispetto al bottom: la barra è più compatta in alto. */
-    padding-block: var(--space-8) var(--space-16);
+  .hero {
+    background: var(--cdm-petrol);
+    color: var(--cdm-cream);
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
   }
-
-  .intestazione-pagina__inner {
-    max-width: 760px;
+  .hero__in {
+    padding-block: 84px 80px;
+    position: relative;
+    z-index: 2;
   }
-
-  .intestazione-pagina__occhiello {
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    font-size: var(--text-sm);
-    color: var(--cdm-orange-light);
-    font-weight: 600;
-    margin-bottom: var(--space-3);
-  }
-
-  .intestazione-pagina__titolo {
+  .hero h1 {
+    font-size: clamp(2.6rem, 7vw, 5.4rem);
+    font-weight: 800;
+    line-height: 1.02;
     margin: 0;
-    color: var(--color-on-dark);
+    color: var(--cdm-cream);
+  }
+  .hero h1 :global(.hl) { color: var(--cdm-orange-light); }
+
+  .hero__breadcrumb {
+    display: inline-block;
+    margin-bottom: var(--space-3);
+    color: var(--cdm-orange-light);
+    text-decoration: none;
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+  .hero__breadcrumb:hover { text-decoration: underline; }
+  .hero .lede {
+    font-size: 1.25rem;
+    margin-top: 18px;
+    max-width: 52ch;
+    color: color-mix(in srgb, var(--cdm-cream) 88%, transparent);
   }
 
-  .intestazione-pagina__sommario {
-    font-size: var(--text-lg);
-    margin-top: var(--space-4);
-    color: color-mix(in srgb, var(--color-on-dark) 90%, transparent);
-    max-width: 60ch;
-  }
+  .pip { position: absolute; border-radius: 50%; z-index: 1; }
+
+  /* variante 1 */
+  .hero--v1 .pip-a { width: 240px; height: 240px; top: -70px; right: 90px;
+    border: 3px solid color-mix(in srgb, var(--cdm-orange-light) 40%, transparent); }
+  .hero--v1 .pip-b { width: 90px; height: 90px; background: var(--cdm-orange); top: 120px; right: 60px; }
+  .hero--v1 .pip-c { width: 46px; height: 46px; background: var(--cdm-orange-light); top: 60px; right: 220px; }
+  .hero--v1 .pip-d { width: 140px; height: 140px; bottom: -54px; right: 200px;
+    border: 3px solid color-mix(in srgb, var(--cdm-cream) 16%, transparent); }
+
+  /* variante 2 */
+  .hero--v2 .pip-a { width: 300px; height: 300px; top: -120px; right: -60px;
+    border: 3px solid color-mix(in srgb, var(--cdm-cream) 16%, transparent); }
+  .hero--v2 .pip-b { width: 112px; height: 112px; background: var(--cdm-orange); top: 64px; right: 78px; }
+  .hero--v2 .pip-c { width: 38px; height: 38px; background: var(--cdm-orange-light); top: 52px; right: 232px; }
+  .hero--v2 .pip-d { width: 70px; height: 70px; bottom: 28px; right: 250px;
+    background: color-mix(in srgb, var(--cdm-cobalt) 85%, transparent); }
+
+  /* variante 3 */
+  .hero--v3 .pip-a { width: 130px; height: 130px; background: var(--cdm-orange); top: -44px; right: -36px; }
+  .hero--v3 .pip-b { width: 260px; height: 260px; top: -90px; right: 150px;
+    border: 3px solid color-mix(in srgb, var(--cdm-cream) 16%, transparent); }
+  .hero--v3 .pip-c { width: 54px; height: 54px; background: var(--cdm-orange-light); top: 128px; right: 96px; }
+  .hero--v3 .pip-d { width: 92px; height: 92px; top: 56px; right: 286px;
+    border: 3px solid color-mix(in srgb, var(--cdm-orange-light) 38%, transparent); }
+
+  /* variante 4 */
+  .hero--v4 .pip-a { width: 210px; height: 210px; top: -66px; right: 280px;
+    border: 3px solid color-mix(in srgb, var(--cdm-orange-light) 32%, transparent); }
+  .hero--v4 .pip-b { width: 150px; height: 150px; background: var(--cdm-orange); top: 24px; right: -54px; }
+  .hero--v4 .pip-c { width: 64px; height: 64px; background: var(--cdm-orange-light); top: 150px; right: 120px; }
+  .hero--v4 .pip-d { width: 34px; height: 34px; background: var(--cdm-orange-light); top: 58px; right: 92px; }
 </style>

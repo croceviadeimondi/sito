@@ -1,8 +1,11 @@
 :root {
-  /* Palette brand CDM */
+  /* Palette brand CDM - tratta dal gradiente del logo */
   --cdm-orange:        #e45d20;
   --cdm-orange-light:  #F39C5C;
   --cdm-petrol:        #0e5769;
+  --cdm-navy:          #242a4d;
+  --cdm-cobalt:        #2960a0;
+  --cdm-vermillion:    #c4421d;
   --cdm-cream:         #FAF5EC;
 
   /* Ruoli semantici */
@@ -18,6 +21,7 @@
 
   /* Tipografia */
   --font-logo: 'Dumbledore 2', 'Georgia', 'Times New Roman', serif;
+  --font-heading: 'Bricolage Grotesque', 'Manrope', system-ui, sans-serif;
   --font-body: 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
   --text-sm:      0.875rem;

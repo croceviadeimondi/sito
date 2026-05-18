@@ -4,7 +4,8 @@ import IntestazionePagina from '../../components/IntestazionePagina.astro';
 import CardEvento from '../../components/CardEvento.astro';
 import { fetchCollection } from '../../lib/directus';
 import { immagine } from '../../lib/immagini';
-import { mdPlain } from '../../lib/markdown';
+import { mdPlain, mdInline } from '../../lib/markdown';
+import { formattaData } from '../../lib/formato';
 import type { Attivita, Evento } from '../../lib/types';
 
 export async function getStaticPaths() {
@@ -24,17 +25,19 @@ interface Props {
 }
 
 const { attivita } = Astro.props;
-// descrizione_breve è markdown: per sommario e meta serve testo piatto
+// descrizione_breve è markdown: per il <meta> serve testo piatto
 const descrizionePlain = mdPlain(attivita.descrizione_breve);
 const adesso = new Date().toISOString();
 
-const [prossimiAppuntamenti, archivio, tutteAttivita, fotoHero] = await Promise.all([
+const [prossimiAppuntamenti, archivio, fotoHero] = await Promise.all([
+  // solo il primo evento futuro collegato: in pagina serve "il prossimo"
   fetchCollection<Evento>('eventi', {
     filter: {
       attivita_collegata: { _eq: attivita.UUID },
       data_inizio: { _gte: adesso },
     },
     sort: 'data_inizio',
+    limit: 1,
   }),
   fetchCollection<Evento>('eventi', {
     filter: {
@@ -44,16 +47,10 @@ const [prossimiAppuntamenti, archivio, tutteAttivita, fotoHero] = await Promise.
     sort: '-data_inizio',
     limit: 6,
   }),
-  fetchCollection<Attivita>('attivita', { fields: 'UUID,slug', sort: 'sort' }),
   immagine(`attivita/${attivita.slug}`, null, { larghezza: 1600 }),
 ]);
 
-// Mappa per il routing nelle card (anche se sulla pagina attività gli eventi
-// linkano sempre al loro dettaglio singolo per non auto-ricaricare la stessa pagina)
-const slugAttivita: Record<string, string> = {};
-for (const a of tutteAttivita) {
-  if (a.UUID && a.slug) slugAttivita[a.UUID] = a.slug;
-}
+const prossimo = prossimiAppuntamenti[0] ?? null;
 ---
 
 <Layout
@@ -62,8 +59,7 @@ for (const a of tutteAttivita) {
 >
   <IntestazionePagina
     titolo={attivita.nome ?? 'Attività'}
-    occhiello="Le nostre aree"
-    sommario={descrizionePlain || undefined}
+    breadcrumb={{ href: '/attivita/', etichetta: '← Tutte le attività' }}
   />
 
   <section class="section section--hero">
@@ -74,29 +70,33 @@ for (const a of tutteAttivita) {
         </figure>
       )}
 
-      <p class="breadcrumb">
-        <a href="/attivita/">← Tutte le attività</a>
-      </p>
-
       {attivita.nome_html && (
         <h2 class="nome-formattato" set:html={attivita.nome_html} />
       )}
 
-      <h2>Prossimi appuntamenti</h2>
-      {prossimiAppuntamenti.length === 0 ? (
-        <p class="vuota">
-          Non ci sono appuntamenti in calendario al momento. Torna a trovarci.
-        </p>
-      ) : (
-        <ul role="list" class="griglia-card">
-          {prossimiAppuntamenti.map((e) => (
-            <li>
-              {/* In pagina attività, le card linkano al dettaglio del singolo evento
-                  (non riportano qui di nuovo), passando slugAttivita vuoto */}
-              <CardEvento evento={{ ...e, attivita_collegata: null }} />
-            </li>
-          ))}
-        </ul>
+      {attivita.descrizione_breve && (
+        <p class="attivita-descrizione" set:html={mdInline(attivita.descrizione_breve)} />
+      )}
+
+      {(attivita.cadenza || prossimo) && (
+        <dl class="attivita-info">
+          {attivita.cadenza && (
+            <div>
+              <dt>Cadenza</dt>
+              <dd>{attivita.cadenza}</dd>
+            </div>
+          )}
+          {prossimo && (
+            <div>
+              <dt>Prossimo appuntamento</dt>
+              <dd>
+                <a href={`/eventi/${prossimo.slug}/`}>
+                  {prossimo.titolo} · {formattaData(prossimo.data_inizio)}
+                </a>
+              </dd>
+            </div>
+          )}
+        </dl>
       )}
 
       {archivio.length > 0 && (
@@ -120,60 +120,87 @@ for (const a of tutteAttivita) {
     margin-top: var(--space-12);
     margin-bottom: var(--space-6);
   }
-
   h2:first-of-type {
     margin-top: var(--space-6);
   }
 
-  .breadcrumb {
-    margin: 0;
-  }
-
-  /* Section dell'hero: niente padding-block, cosi' l'hero sconfina
-     sopra la barra scura del titolo. */
+  /* la foto sconfina sopra la barra scura del titolo */
   .section--hero {
     padding-block: 0;
+    position: relative;
+    z-index: 1;
   }
-
   .hero-attivita {
-    margin: calc(-1 * var(--space-8)) 0 var(--space-8);
+    margin: calc(-1 * var(--space-16)) 0 var(--space-8);
   }
-
   .hero-attivita img {
     display: block;
     width: 100%;
     max-height: 420px;
     object-fit: cover;
-    border-radius: var(--radius-md);
-  }
-
-  .breadcrumb a {
-    color: var(--color-accent);
-    text-decoration: none;
-    font-size: var(--text-sm);
+    border-radius: var(--radius-lg);
   }
 
   .nome-formattato {
-    margin: var(--space-6) 0;
+    margin: var(--space-6) 0 0;
     font-size: var(--text-2xl);
     color: var(--color-text-muted);
   }
 
-  .vuota {
-    color: var(--color-text-muted);
+  .attivita-descrizione {
     font-size: var(--text-lg);
-    padding: var(--space-6);
-    border: 1px dashed var(--color-border);
-    border-radius: var(--radius-md);
-    text-align: center;
+    line-height: 1.7;
+    margin: var(--space-6) 0 var(--space-8);
+  }
+
+  /* cadenza + prossimo appuntamento */
+  .attivita-info {
+    margin: 0 0 var(--space-8);
+    display: grid;
+  }
+  .attivita-info > div {
+    display: grid;
+    grid-template-columns: 13rem 1fr;
+    gap: var(--space-4);
+    padding: var(--space-3) 0;
+    border-top: 1px solid var(--color-border);
+  }
+  .attivita-info > div:first-child {
+    border-top: 0;
+  }
+  .attivita-info dt {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: var(--text-sm);
+    font-weight: 700;
+    color: var(--color-accent);
+    align-self: center;
+  }
+  .attivita-info dd {
+    margin: 0;
+    font-size: var(--text-lg);
+  }
+  .attivita-info a {
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+  .attivita-info a:hover {
+    text-decoration: underline;
   }
 
   .griglia-card {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: var(--space-6);
+    gap: var(--space-8) var(--space-6);
     list-style: none;
     margin: 0;
     padding: 0;
+  }
+
+  @media (max-width: 540px) {
+    .attivita-info > div {
+      grid-template-columns: 1fr;
+      gap: var(--space-1);
+    }
   }
 </style>

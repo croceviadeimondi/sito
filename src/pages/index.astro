@@ -57,8 +57,8 @@ const fotoGallery = fotoCarosello
   headerGrande
 >
     {fotoGallery.length > 0 && (
-      <section class="banner-attivita" aria-label="Siamo stati qui">
-        <p class="banner-attivita__etichetta">Siamo stati qui</p>
+      <section class="banner-attivita" aria-label="Si gioca così">
+        <p class="banner-attivita__etichetta">Si gioca così →</p>
         <ul role="list" class="banner-attivita__lista">
           {fotoGallery.map((f) => (
             <li class="banner-attivita__slide">
@@ -92,9 +92,12 @@ const fotoGallery = fotoCarosello
 
   <section class="section">
     <div class="container">
-      <header class="sezione-intestazione">
-        <h2>Prossimi eventi</h2>
-        <a href="/eventi/" class="sezione-intestazione__link">Tutti gli eventi →</a>
+      <header class="sez-head">
+        <span class="eyebrow">Calendario</span>
+        <div class="sez-head__riga">
+          <h2>Prossimi eventi</h2>
+          <a href="/eventi/" class="sez-head__link">Tutti gli eventi →</a>
+        </div>
       </header>
 
       {prossimiEventi.length === 0 ? (
@@ -111,11 +114,13 @@ const fotoGallery = fotoCarosello
     </div>
   </section>
 
-  <section class="section section--alt">
+  <section class="section section--blocco">
     <div class="container">
-      <header class="sezione-intestazione">
-        <h2>Progetti in vetrina</h2>
-        <a href="/progetti/" class="sezione-intestazione__link">Tutti i progetti →</a>
+      <header class="sez-head">
+        <div class="sez-head__riga">
+          <h2>Progetti in vetrina</h2>
+          <a href="/progetti/" class="sez-head__link">Tutti i progetti →</a>
+        </div>
       </header>
 
       {progettiVetrina.length === 0 ? (
@@ -285,19 +290,13 @@ const fotoGallery = fotoCarosello
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    padding: var(--space-12) var(--gutter) var(--space-10);
-    background: linear-gradient(
-      to top,
-      color-mix(in srgb, var(--cdm-petrol) 55%, transparent) 0%,
-      color-mix(in srgb, var(--cdm-petrol) 20%, transparent) 45%,
-      transparent 90%
-    );
+    padding: var(--space-12) var(--gutter);
   }
 
   /* Pallini di navigazione (top center) */
   .banner-attivita__dots {
     position: absolute;
-    top: var(--space-4);
+    bottom: var(--space-4);
     left: 0;
     right: 0;
     display: flex;
@@ -326,29 +325,38 @@ const fotoGallery = fotoCarosello
     transform: scale(1.25);
   }
 
+  /* Etichetta come adesivo */
   .banner-attivita__etichetta {
     position: absolute;
-    top: var(--space-4);
+    top: var(--space-6);
     left: var(--gutter);
     z-index: 2;
     margin: 0;
-    padding: var(--space-2) var(--space-4);
-    background: var(--color-accent);
-    color: var(--color-on-dark);
-    border-radius: var(--radius-pill);
+    padding: 8px 14px;
+    background: var(--cdm-orange);
+    color: #fff;
+    border-radius: 7px;
     font-size: var(--text-sm);
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.12em;
-    box-shadow: 0 4px 12px color-mix(in srgb, var(--cdm-petrol) 25%, transparent);
+    letter-spacing: 0.1em;
+    transform: rotate(-3deg);
+    box-shadow: 3px 4px 0 color-mix(in srgb, var(--cdm-petrol) 55%, transparent);
   }
 
   .banner-attivita__nome {
     margin: 0;
-    font-size: var(--text-display);
+    font-size: var(--text-3xl);
+    font-weight: 800;
     line-height: 1.05;
-    color: var(--color-on-dark);
-    text-shadow: 0 2px 12px color-mix(in srgb, var(--cdm-petrol) 60%, transparent);
+    color: #fff;
+    /* proiezione: estrusione piena e continua verso il basso-destra,
+       non un doppio livello staccato */
+    text-shadow:
+      1px 1px 0 var(--cdm-petrol), 2px 2px 0 var(--cdm-petrol),
+      3px 3px 0 var(--cdm-petrol), 4px 4px 0 var(--cdm-petrol),
+      5px 5px 0 var(--cdm-petrol), 6px 6px 0 var(--cdm-petrol),
+      7px 7px 0 var(--cdm-petrol);
   }
 
   @media (max-width: 640px) {
@@ -363,23 +371,57 @@ const fotoGallery = fotoCarosello
     }
   }
 
-  .section--alt {
-    background: color-mix(in srgb, var(--cdm-petrol) 6%, var(--color-bg));
+  /* Sezione a blocco di colore pieno */
+  .section--blocco {
+    background: var(--cdm-navy);
+    color: #fff;
+    /* linea arancione sottile che separa dal footer, senza spazio vuoto */
+    border-bottom: 6px solid var(--cdm-orange);
+    margin-bottom: calc(-1 * var(--space-24));
+  }
+  .section--blocco h2 { color: #fff; }
+
+  /* Intestazione di sezione: occhiello-adesivo + titolo + link */
+  .sez-head {
+    margin-bottom: var(--space-8);
   }
 
-  .sezione-intestazione {
+  .eyebrow {
+    display: inline-block;
+    background: var(--cdm-orange);
+    color: #fff;
+    font-weight: 700;
+    font-size: var(--text-sm);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 7px 13px;
+    border-radius: 7px;
+    transform: rotate(-3deg);
+    box-shadow: 2px 3px 0 color-mix(in srgb, var(--cdm-petrol) 45%, transparent);
+    margin-bottom: var(--space-4);
+  }
+
+  .sez-head__riga {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
     flex-wrap: wrap;
     gap: var(--space-4);
-    margin-bottom: var(--space-8);
   }
 
-  .sezione-intestazione__link {
+  .sez-head__riga h2 {
+    margin: 0;
+  }
+
+  .sez-head__link {
     text-decoration: none;
-    color: var(--color-accent);
-    font-weight: 600;
+    color: var(--cdm-orange);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .section--blocco .sez-head__link {
+    color: var(--cdm-orange-light);
   }
 
   .sezione-vuota {
@@ -391,10 +433,15 @@ const fotoGallery = fotoCarosello
     text-align: center;
   }
 
+  .section--blocco .sezione-vuota {
+    color: color-mix(in srgb, #fff 75%, transparent);
+    border-color: color-mix(in srgb, #fff 30%, transparent);
+  }
+
   .griglia-card {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: var(--space-6);
+    gap: var(--space-8) var(--space-6);
     list-style: none;
     margin: 0;
     padding: 0;
