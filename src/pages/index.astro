@@ -54,10 +54,13 @@ const fotoGallery = fotoCarosello
 <Layout
   descrizione="#maipiuinsoffitta"
   headerGrande
+  marchioComeH1
 >
     {fotoGallery.length > 0 && (
       <section class="banner-attivita" aria-label="Si gioca così">
-        <p class="banner-attivita__etichetta">Si gioca così →</p>
+        <a class="banner-attivita__etichetta" href={`/eventi/${fotoGallery[0].slug}/`}>
+          Si gioca così →
+        </a>
         <ul role="list" class="banner-attivita__lista">
           {fotoGallery.map((f) => (
             <li class="banner-attivita__slide">
@@ -75,16 +78,31 @@ const fotoGallery = fotoCarosello
           ))}
         </ul>
         {fotoGallery.length > 1 && (
-          <div class="banner-attivita__dots" role="tablist" aria-label="Naviga le foto">
-            {fotoGallery.map((f, i) => (
-              <button
-                type="button"
-                class="banner-attivita__dot"
-                data-slide-index={i}
-                aria-label={`Vai alla foto ${i + 1}: ${f.titolo}`}
-              ></button>
-            ))}
-          </div>
+          <>
+            <div class="banner-attivita__dots" role="tablist" aria-label="Naviga le foto">
+              {fotoGallery.map((f, i) => (
+                <button
+                  type="button"
+                  class="banner-attivita__dot"
+                  data-slide-index={i}
+                  aria-label={`Vai alla foto ${i + 1}: ${f.titolo}`}
+                ></button>
+              ))}
+            </div>
+            <button
+              type="button"
+              class="banner-attivita__pausa"
+              aria-label="Metti in pausa lo scorrimento"
+            >
+              <svg class="icona-pausa" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <rect x="6" y="5" width="4" height="14" rx="1" />
+                <rect x="14" y="5" width="4" height="14" rx="1" />
+              </svg>
+              <svg class="icona-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </button>
+          </>
         )}
       </section>
     )}
@@ -146,9 +164,15 @@ const fotoGallery = fotoCarosello
 
     if (lista && slides.length > 0 && dots.length === slides.length) {
       let idxCorrente = 0;
+      const etichetta = banner.querySelector<HTMLAnchorElement>('.banner-attivita__etichetta');
       const setActivo = (idx: number) => {
         idxCorrente = idx;
         dots.forEach((d, i) => d.classList.toggle('is-attivo', i === idx));
+        // l'etichetta "Si gioca così" punta al dettaglio della slide attiva
+        if (etichetta) {
+          const linkSlide = slides[idx].querySelector<HTMLAnchorElement>('.banner-attivita__link');
+          if (linkSlide) etichetta.href = linkSlide.href;
+        }
       };
 
       const io = new IntersectionObserver(
@@ -201,8 +225,9 @@ const fotoGallery = fotoCarosello
       const INTERVALLO = 8000;
       const RIPRESA_DOPO = 14000;
 
+      let inPausaManuale = false;
       const start = () => {
-        if (slides.length < 2 || reduceMotion.matches) return;
+        if (slides.length < 2 || reduceMotion.matches || inPausaManuale) return;
         stop();
         intervalId = window.setInterval(() => {
           vaiA((idxCorrente + 1) % slides.length);
@@ -230,6 +255,28 @@ const fotoGallery = fotoCarosello
       // l'autoplay deve continuare anche quando il mouse è sopra)
       lista.addEventListener('touchstart', pausa, { passive: true });
       lista.addEventListener('wheel', pausa, { passive: true });
+
+      // Pulsante pausa/play esplicito (WCAG 2.2.2: stop al contenuto in moto)
+      const btnPausa = banner.querySelector<HTMLButtonElement>('.banner-attivita__pausa');
+      if (btnPausa) {
+        if (reduceMotion.matches) {
+          // senza autoplay il pulsante non serve
+          btnPausa.hidden = true;
+        } else {
+          btnPausa.addEventListener('click', () => {
+            inPausaManuale = !inPausaManuale;
+            btnPausa.classList.toggle('is-in-pausa', inPausaManuale);
+            if (inPausaManuale) {
+              if (timeoutRipresa !== null) clearTimeout(timeoutRipresa);
+              stop();
+              btnPausa.setAttribute('aria-label', 'Riprendi lo scorrimento');
+            } else {
+              btnPausa.setAttribute('aria-label', 'Metti in pausa lo scorrimento');
+              start();
+            }
+          });
+        }
+      }
 
       start();
     }
@@ -300,31 +347,76 @@ const fotoGallery = fotoCarosello
     right: 0;
     display: flex;
     justify-content: center;
-    gap: var(--space-2);
+    gap: 0;
     z-index: 2;
   }
 
+  /* area cliccabile ampia (tap target comodo); il pallino visibile è
+     disegnato dal ::before, così resta piccolo senza ridurre il bersaglio */
   .banner-attivita__dot {
-    width: 0.6rem;
-    height: 0.6rem;
+    width: 2.25rem;
+    height: 2.25rem;
     padding: 0;
     border: 0;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.4);
+    background: transparent;
     cursor: pointer;
+    display: grid;
+    place-items: center;
+  }
+
+  .banner-attivita__dot::before {
+    content: '';
+    width: 0.85rem;
+    height: 0.85rem;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.45);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
     transition: background 200ms ease, transform 200ms ease;
   }
 
-  .banner-attivita__dot:hover {
-    background: rgba(255, 255, 255, 0.7);
+  .banner-attivita__dot:hover::before {
+    background: rgba(255, 255, 255, 0.75);
   }
 
-  .banner-attivita__dot.is-attivo {
+  .banner-attivita__dot.is-attivo::before {
     background: rgba(255, 255, 255, 1);
-    transform: scale(1.25);
+    transform: scale(1.3);
   }
 
-  /* Etichetta come adesivo */
+  /* pulsante pausa/play: in basso a destra, sopra le foto */
+  .banner-attivita__pausa {
+    position: absolute;
+    bottom: var(--space-4);
+    right: var(--gutter);
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--cdm-petrol) 72%, transparent);
+    color: #fff;
+    cursor: pointer;
+    transition: background 150ms ease;
+  }
+
+  .banner-attivita__pausa:hover {
+    background: var(--cdm-petrol);
+  }
+
+  .banner-attivita__pausa svg {
+    width: 1.35rem;
+    height: 1.35rem;
+    display: block;
+  }
+
+  .banner-attivita__pausa .icona-play { display: none; }
+  .banner-attivita__pausa.is-in-pausa .icona-pausa { display: none; }
+  .banner-attivita__pausa.is-in-pausa .icona-play { display: block; }
+
+  /* Etichetta-adesivo: è un link al dettaglio della slide attiva */
   .banner-attivita__etichetta {
     position: absolute;
     top: var(--space-6);
@@ -339,8 +431,15 @@ const fotoGallery = fotoCarosello
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
+    text-decoration: none;
+    display: inline-block;
     transform: rotate(-3deg);
     box-shadow: 3px 4px 0 color-mix(in srgb, var(--cdm-petrol) 55%, transparent);
+    transition: transform 150ms ease;
+  }
+
+  .banner-attivita__etichetta:hover {
+    transform: rotate(-3deg) translateY(-2px);
   }
 
   .banner-attivita__nome {

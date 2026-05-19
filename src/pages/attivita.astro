@@ -2,26 +2,9 @@
 import Layout from '../layouts/Layout.astro';
 import { fetchCollection } from '../lib/directus';
 import { mdInline } from '../lib/markdown';
-import type { Attivita, Evento } from '../lib/types';
+import type { Attivita } from '../lib/types';
 
-const adesso = new Date().toISOString();
-
-const [attivita, prossimi] = await Promise.all([
-  fetchCollection<Attivita>('attivita', { sort: 'sort' }),
-  // evento collegato a un'attività più vicino in calendario: serve a marcare
-  // una sola tessera con l'adesivo "Prossimo appuntamento"
-  fetchCollection<Evento>('eventi', {
-    fields: 'attivita_collegata,data_inizio',
-    filter: {
-      attivita_collegata: { _nnull: true },
-      data_inizio: { _gte: adesso },
-    },
-    sort: 'data_inizio',
-    limit: 1,
-  }),
-]);
-
-const attivitaPiuVicina = prossimi[0]?.attivita_collegata ?? null;
+const attivita = await fetchCollection<Attivita>('attivita', { sort: 'sort' });
 
 /*
  * Layout della pagina: ordine, colore, dimensione e disegno di ogni area,
@@ -93,11 +76,8 @@ const DISEGNI: Record<string, string> = {
     ) : (
       <div class="grid">
         {tutte.map((t) => (
-          <a class:list={['tile', t.colore, t.span]} href={`/attivita/${t.dato.slug}/`}>
+          <a class:list={['tile', t.colore, t.span, `tile--${t.dato.slug}`]} href={`/attivita/${t.dato.slug}/`}>
             {t.dato.cadenza && <span class="tile__tag">{t.dato.cadenza}</span>}
-            {attivitaPiuVicina && t.dato.UUID === attivitaPiuVicina && (
-              <span class="tile__next">Prossimo appuntamento</span>
-            )}
             {DISEGNI[t.disegno] && (
               <span class="tile__art" aria-hidden="true" set:html={DISEGNI[t.disegno]} />
             )}
@@ -118,7 +98,7 @@ const DISEGNI: Record<string, string> = {
           </a>
         ))}
 
-        <a class="tile t-cta span-15" href="/contatti/">
+        <a class="tile t-cta span-15 tile--cta" href="/contatti/">
           <span class="tile__tag">Hai un'idea?</span>
           <span class="tile__art" aria-hidden="true" set:html={DISEGNI.lampadina} />
           <h2 class="tile__name">Aprine una nuova</h2>
@@ -133,7 +113,7 @@ const DISEGNI: Record<string, string> = {
 
   <section class="band">
     <div class="band__in">
-      <p>Ogni area è aperta a tutti: non serve esperienza, serve voglia di giocare insieme.</p>
+      <p>Ogni area è aperta a tutti: non serve esperienza, solo voglia di giocare insieme</p>
     </div>
   </section>
 </Layout>
@@ -233,21 +213,20 @@ const DISEGNI: Record<string, string> = {
   }
   .tile:nth-child(even) .tile__tag { transform: rotate(4deg); }
 
-  .tile__next {
-    position: absolute;
-    bottom: 26px;
-    left: 36px;
-    background: #fff;
-    color: var(--cdm-petrol);
-    font-size: 0.72rem;
-    font-weight: 800;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-    padding: 7px 12px;
-    border-radius: 7px;
-    transform: rotate(-6deg);
-    box-shadow: 2px 3px 0 rgba(13, 30, 34, 0.3);
-    z-index: 3;
+  /* etichette abbassate: non sporgono sopra la tessera, così le righe
+     della griglia restano compatte (gap 22px) */
+  .tile--gioco-di-ruolo .tile__tag,
+  .tile--boardgames .tile__tag,
+  .tile--cta .tile__tag {
+    top: 12px;
+  }
+
+  /* mana vault: etichetta abbassata solo nel layout largo;
+     a colonna singola resta l'adesivo sporgente */
+  @media (min-width: 821px) {
+    .tile--mana-vault .tile__tag {
+      top: 12px;
+    }
   }
 
   .tile__art {
@@ -326,6 +305,9 @@ const DISEGNI: Record<string, string> = {
       grid-template-columns: 1fr;
       max-width: 480px;
       margin-inline: auto;
+      /* a colonna singola le etichette non abbassate (mondi tra le righe,
+         mana vault) sporgono: serve più spazio tra le tessere impilate */
+      row-gap: 40px;
     }
     .span-10, .span-11, .span-15, .span-19 { grid-column: auto; }
   }
