@@ -6,12 +6,8 @@ interface Props {
   /** Non più usato: l'header è identico su tutte le pagine. Accettato per
    *  compatibilità con Layout. */
   grande?: boolean;
-  /** Se true il marchio è reso come <h1>: usato in home, dove il marchio
-   *  è il titolo della pagina. */
-  comeH1?: boolean;
 }
 
-const { comeH1 = false } = Astro.props;
 const impostazioni = await fetchSingleton<Impostazioni>('impostazioni');
 const urlLogo = assetUrl(impostazioni?.logo_principale);
 const pathCorrente = Astro.url.pathname.replace(/\/$/, '') || '/';
@@ -40,11 +36,7 @@ function attiva(href: string): boolean {
       ) : (
         <span class="header__brand-mark">CdM</span>
       )}
-      {comeH1 ? (
-        <h1 class="header__brand-name"><span class="brand-cap">C</span>rocevia <span class="brand-cap">d</span>ei <span class="brand-cap">M</span>ondi</h1>
-      ) : (
-        <span class="header__brand-name"><span class="brand-cap">C</span>rocevia <span class="brand-cap">d</span>ei <span class="brand-cap">M</span>ondi</span>
-      )}
+      <span class="header__brand-name"><span class="brand-cap">C</span>rocevia <span class="brand-cap">d</span>ei <span class="brand-cap">M</span>ondi</span>
     </a>
 
     <button
@@ -149,9 +141,6 @@ function attiva(href: string): boolean {
   }
 
   .header__brand-name {
-    margin: 0;
-    /* esplicito: come <h1> in home erediterebbe --font-heading dalla
-       regola globale h1, va riportato al font del logo */
     font-family: var(--font-logo);
     /* minimo alzato: su schermi stretti il marchio resta leggibile,
        sempre su una riga sola */
@@ -159,6 +148,7 @@ function attiva(href: string): boolean {
     font-weight: 400;
     color: var(--color-accent);
     line-height: 1;
+    letter-spacing: normal;
   }
 
   /* iniziali C / d / M in grassetto. Dumbledore2.woff2 ha solo il peso

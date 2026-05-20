@@ -10,8 +10,6 @@ interface Props {
   descrizione?: string;
   immagineOg?: string;
   headerGrande?: boolean;
-  /** Se true il marchio nell'header è reso come <h1> (usato in home). */
-  marchioComeH1?: boolean;
 }
 
 const {
@@ -19,7 +17,6 @@ const {
   descrizione = "Crocevia dei Mondi APS - il gioco come strumento sociale, ponte tra persone e culture nel Sud Italia.",
   immagineOg,
   headerGrande = false,
-  marchioComeH1 = false,
 } = Astro.props;
 
 const titoloCompleto = titolo
@@ -78,7 +75,7 @@ const faviconUrl = faviconBase
   </head>
   <body>
     <a href="#contenuto" class="skip-link">Salta al contenuto</a>
-    <HeaderMain grande={headerGrande} comeH1={marchioComeH1} />
+    <HeaderMain grande={headerGrande} />
     <main id="contenuto">
       <slot />
     </main>
